@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">MDSYandexProject</string>
+    <string name="logo_image_for_stock">Logo image for stock</string>
+    <string name="image_for_favourite_button">Image for favourite button</string>
+    <string name="stocks">Stocks</string>
+    <string name="favourite">Favourite</string>
+    <string name="hint_for_search_edit_text">Find company or ticker</string>
+    <string name="popular_requests_header">Popular requests</string>
+    <string name="search_history_header">You’ve searched for this</string>
+    <string name="right_icon_for_search">Right icon for search</string>
+    <string name="left_icon_for_search">Left icon for search</string>
+    <string name="show_more">Show more</string>
+    <string name="current_price">%1$s %2$s</string>
+    <string name="day_delta_price">%1$s%2$s (%3$s%%)</string>
+    <string name="loading_price_image">loading price image</string>
+    <string name="error_price_image">error_price_message</string>
+    <string name="error_message">ErrorCode: %1$s; errorMessage: %2$s</string>
+</resources>

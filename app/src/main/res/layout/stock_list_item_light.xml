@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="stockItem"
+            type="com.sample.mdsyandexproject.domain.StockItem" />
+
+        <variable
+            name="favBtnListener"
+            type="com.sample.mdsyandexproject.stocklist.FavBtnListener" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/stock_list_item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/stock_list_item_shape_light">
+
+        <ImageView
+            android:id="@+id/stock_logo"
+            android:layout_width="@dimen/image_width"
+            android:layout_height="@dimen/image_height"
+            android:layout_marginStart="@dimen/stock_logo_margin"
+            android:layout_marginTop="@dimen/stock_logo_margin"
+            android:layout_marginBottom="@dimen/stock_logo_margin"
+            android:contentDescription="@string/logo_image_for_stock"
+            app:imageUrl="@{stockItem.logoUrl}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/stock_ticker"
+            style="@style/H2_text_style"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/stock_list_item_text_horizontal_margin"
+            android:layout_marginTop="@dimen/stock_list_item_upper_text_vertical_margin"
+            android:text="@{stockItem.ticker}"
+            app:layout_constraintStart_toEndOf="@id/stock_logo"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="YANDX" />
+
+        <ImageView
+            android:id="@+id/stock_favour_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="17dp"
+            android:layout_marginBottom="5dp"
+            android:contentDescription="@string/image_for_favourite_button"
+            android:onClick="@{() -> favBtnListener.onClick(stockItem)}"
+            app:isFavourite="@{stockItem}"
+            app:layout_constraintBottom_toTopOf="@id/stock_company_name"
+            app:layout_constraintStart_toEndOf="@id/stock_ticker"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/stock_company_name"
+            style="@style/body"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/stock_list_item_text_horizontal_margin"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@{stockItem.companyName}"
+            app:layout_constraintEnd_toStartOf="@+id/day_delta"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/stock_logo"
+            app:layout_constraintTop_toBottomOf="@id/stock_ticker"
+            tools:text="Yandex, LLC" />
+
+        <TextView
+            android:id="@+id/stock_current_price"
+            style="@style/H2_text_style"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/stock_list_item_upper_text_vertical_margin"
+            android:layout_marginEnd="17dp"
+            app:currentPrice="@{stockItem}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="$72.16" />
+
+        <TextView
+            android:id="@+id/day_delta"
+            style="@style/body_green"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/stock_list_item_text_horizontal_margin"
+            app:dayDeltaPrice="@{stockItem}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/stock_current_price"
+            tools:text="+$ 0.12 (1,15%)" />
+
+        <ImageView
+            android:id="@+id/loading_price_image"
+            android:layout_width="@dimen/image_width"
+            android:layout_height="@dimen/image_height"
+            android:layout_marginEnd="@dimen/stock_list_item_text_horizontal_margin"
+            android:contentDescription="@string/loading_price_image"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:loadingPrice="@{stockItem}" />
+
+        <ImageView
+            android:id="@+id/error_price_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/stock_list_item_text_horizontal_margin"
+            android:contentDescription="@string/error_price_image"
+            app:errorPrice="@{stockItem}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:showMessage="@{stockItem}" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

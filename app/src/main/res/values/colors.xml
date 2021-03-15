@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="white">#FFFFFFFF</color>
+    <color name="black">#1A1A1A</color>
+
+    <!--    -->
+    <color name="dark_snippet_background">#F0F4F7</color>
+    <color name="light_snippet_background">#FFFFFF</color>
+
+
+    <color name="unselected_text">#BABABA</color>
+    <color name="loading_color">#DADADA</color>
+
+    <color name="positive_day_delta">#24B25D</color>
+    <color name="negative_day_delta">#B22424</color>
+</resources>

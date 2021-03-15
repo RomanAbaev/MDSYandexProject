@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- TODO: Надо вынести все размеры в values.dimens или нет, надо подумать -->
+
+    <style name="H1_text_style">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">28sp</item>
+        <item name="lineHeight">32sp</item>
+    </style>
+
+    <style name="H2_text_style">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">18sp</item>
+        <item name="lineHeight">24sp</item>
+    </style>
+
+    <style name="H2_text_style_unselected">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">18sp</item>
+        <item name="lineHeight">24sp</item>
+        <item name="android:textColor">@color/unselected_text</item>
+    </style>
+
+    <style name="body">
+        <item name="android:fontWeight">600</item>
+        <item name="android:textSize">12sp</item>
+        <item name="lineHeight">16sp</item>
+    </style>
+
+    <style name="H3_text_style">
+        <item name="android:fontWeight">600</item>
+        <item name="android:textSize">16sp</item>
+        <item name="lineHeight">24sp</item>
+    </style>
+
+    <style name="body_green" parent="@style/body">
+        <item name="android:textColor">#24B25D</item>
+    </style>
+</resources>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="list_horizontal_margin">16dp</dimen>
+    <dimen name="list_vertical_margin">20dp</dimen>
+    <dimen name="stock_logo_margin">8dp</dimen>
+    <dimen name="stock_list_item_upper_text_vertical_margin">14dp</dimen>
+    <dimen name="stock_list_item_text_horizontal_margin">12dp</dimen>
+
+    <dimen name="image_width">52dp</dimen>
+    <dimen name="image_height">52dp</dimen>
+</resources>
