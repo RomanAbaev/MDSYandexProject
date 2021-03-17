@@ -1,6 +1,9 @@
 package com.sample.mdsyandexproject.database
 
-import androidx.room.*
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.PrimaryKey
+import androidx.room.TypeConverter
 import com.sample.mdsyandexproject.domain.StockItem
 import java.util.*
 
@@ -27,27 +30,65 @@ data class DatabaseStockItem(
     var phone: String? = null,
     var weburl: String? = null,
     var error: String? = null,
-    var errorMessage: String? = null
+    var errorMessage: String? = null,
+    var previousClosePrice: Float? = null,
+    var previousClosePriceDate: Long? = null
 )
 
-data class EodAndCompanyProfile(
-    var currentPrice: Float? = null,
-    var currentPriceDate: Long? = null,
-    var previousEodDate: Long? = null,
-    var previousEod: Float? = null,
-    var eod: Float? = null,
-    var eodDate: Long? = null,
+@Entity
+data class SPIndices(
+    @PrimaryKey
+    val indices: String,
+    val isLoaded: Boolean,
+    val symbol: String
+)
+
+data class QuoteAndCompanyProfileDb(
+    val ticker: String,
+    val companyName: String,
+    val currentPrice: Float? = null,
+    val currentPriceDate: Long? = null,
+    val previousClosePrice: Float? = null,
+    val previousClosePriceDate: Long? = null,
+    var error: String? = null,
+    var errorMessage: String? = null,
+    val logoUrl: String? = null,
+    val currency: String? = null,
+    val country: String? = null,
+    val exchange: String? = null,
+    val ipo: String? = null,
+    val marketCapitalization: String? = null,
+    val phone: String? = null,
+    val weburl: String? = null
+)
+
+data class CompanyProfile2Db(
+    val ticker: String,
+    val companyName: String,
+    val logoUrl: String? = null,
+    val currency: String? = null,
+    val country: String? = null,
+    val exchange: String? = null,
+    val ipo: String? = null,
+    val marketCapitalization: String? = null,
+    val phone: String? = null,
+    val weburl: String? = null
+)
+
+data class QuoteDb(
+    val ticker: String,
+    val currentPrice: Float?,
+    val currentPriceDate: Long?,
+    val previousClosePrice: Float?,
+    val previousClosePriceDate: Long?,
+    var error: String? = null,
+    var errorMessage: String? = null
 )
 
 data class Prices(
     val ticker: String,
     val currentPrice: Float,
-    val currentPriceDate: Long
-)
-
-data class Ticker(
-    val ticker: String,
-    val isFavourite: Boolean
+    val currentPriceDate: Long,
 )
 
 data class FavouriteDatabaseModel(
@@ -67,31 +108,6 @@ class Converters {
     }
 }
 
-fun DatabaseStockItem.asStockItemDomainModel(): StockItem {
-    return StockItem(
-        ticker = this.ticker,
-        companyName = this.companyName,
-        logoUrl = this.logoUrl,
-        _isFavourite = this.isFavourite,
-        currentPrice = this.currentPrice,
-        currentPriceDate = this.currentPriceDate,
-        previousEodDate = this.previousEodDate,
-        previousEod = this.previousEod,
-        eod = this.eod,
-        eodDate = this.eodDate,
-        dayDelta = this.dayDelta,
-        currency = this.currency,
-        error = this.error,
-        errorMessage = this.errorMessage,
-    )
-}
-
-fun List<Ticker>.asSortedTickers(): List<String> {
-    return this.sortedWith(compareBy { it.isFavourite }).map {
-        it.ticker
-    }
-}
-
 fun List<DatabaseStockItem>.asStockItemDomainModel(): List<StockItem> {
     return map {
         StockItem(
@@ -101,10 +117,8 @@ fun List<DatabaseStockItem>.asStockItemDomainModel(): List<StockItem> {
             _isFavourite = it.isFavourite,
             currentPrice = it.currentPrice,
             currentPriceDate = it.currentPriceDate,
-            previousEodDate = it.previousEodDate,
-            previousEod = it.previousEod,
-            eod = it.eod,
-            eodDate = it.eodDate,
+            previousClosePrice = it.previousClosePrice,
+            previousClosePriceDate = it.previousClosePriceDate,
             dayDelta = it.dayDelta,
             currency = it.currency,
             error = it.error,

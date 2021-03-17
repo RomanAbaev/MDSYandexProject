@@ -1,24 +1,20 @@
 package com.sample.mdsyandexproject.stocklist
 
-import android.util.Log
 import androidx.lifecycle.*
 import com.sample.mdsyandexproject.domain.StockItem
-import com.sample.mdsyandexproject.domain.asDatabaseModel
 import com.sample.mdsyandexproject.repository.Repository
-import com.sample.mdsyandexproject.utils.isCompanyInfoValid
-import kotlinx.coroutines.*
-import java.util.concurrent.ConcurrentHashMap
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @ExperimentalCoroutinesApi
 class StockListViewModel : ViewModel() {
 
     private val repository = Repository.instance
 
-    private var limit = 20
-
     var loading = MutableLiveData(false)
     val showFavouriteList = MutableLiveData(false)
-    val requestQ = ConcurrentHashMap<String, Int>()
 
     private var _stockList: LiveData<List<StockItem>> =
         Transformations.switchMap(showFavouriteList) {
@@ -36,21 +32,7 @@ class StockListViewModel : ViewModel() {
 
     fun updateStockItemInformation(stockItem: StockItem) {
         viewModelScope.launch(Dispatchers.IO) {
-            if (!requestQ.containsKey(stockItem.ticker)) {
-                Log.i("ConcurrentHashMap", "start loading info for: ${stockItem.ticker}")
-                requestQ[stockItem.ticker] = 0
-                val databaseStockItem = stockItem.asDatabaseModel()
-                //make a delay because we don't want to run into Too many request error from api
-                delay(15000)
-                repository.getEodPrices(databaseStockItem)
-                if (!isCompanyInfoValid(stockItem)) repository.loadCompanyInfo(databaseStockItem)
-//                Log.i("ConcurrentHashMap", "now eod date is: ${isEodDateValid(databaseStockItem.eodDate)}")
-                repository.updateInfo(databaseStockItem)
-                requestQ.remove(stockItem.ticker)
-                Log.i("ConcurrentHashMap", "end loading info for: ${stockItem.ticker}")
-            } else {
-                Log.i("ConcurrentHashMap", "ticker already contains in map: ${stockItem.ticker}")
-            }
+            repository.updateQuoteAndCompanyProfile(stockItem)
         }
     }
 
@@ -84,7 +66,7 @@ class StockListViewModel : ViewModel() {
         viewModelScope.launch {
             loading.value = true
             withContext(Dispatchers.IO) {
-                repository.loadNextChunks(limit, stockList.value?.size ?: 0)
+                repository.loadNextChunks()
             }
             loading.value = false
         }

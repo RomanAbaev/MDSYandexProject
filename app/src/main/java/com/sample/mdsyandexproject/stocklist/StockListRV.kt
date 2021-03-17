@@ -9,7 +9,7 @@ import com.sample.mdsyandexproject.databinding.StockListItemDarkBinding
 import com.sample.mdsyandexproject.databinding.StockListItemLightBinding
 import com.sample.mdsyandexproject.domain.StockItem
 import com.sample.mdsyandexproject.utils.isCurrentPriceValid
-import com.sample.mdsyandexproject.utils.isEodValid
+import com.sample.mdsyandexproject.utils.isPreviousClosePriceValid
 
 
 class StockItemAdapter(
@@ -53,7 +53,7 @@ class StockItemAdapter(
                         subscribeListener.subscribe(it)
                         subscribedTickers.add(it.ticker)
                         if (!isCurrentPriceValid(it)
-                            || !isEodValid(stockItem = it)
+                            || !isPreviousClosePriceValid(stockItem = it) && it.error != "403"
                         ) updateStockItemInformationListener?.updateStockItemInformation(it)
                     }
                 }
@@ -65,7 +65,7 @@ class StockItemAdapter(
                         subscribeListener.subscribe(it)
                         subscribedTickers.add(it.ticker)
                         if (!isCurrentPriceValid(it)
-                            || !isEodValid(stockItem = it)
+                            || !isPreviousClosePriceValid(stockItem = it) && it.error != "403"
                         ) updateStockItemInformationListener?.updateStockItemInformation(it)
                     }
                 }

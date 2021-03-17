@@ -12,7 +12,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.snackbar.Snackbar
 import com.sample.mdsyandexproject.domain.StockItem
 import com.sample.mdsyandexproject.utils.isCurrentPriceValid
-import com.sample.mdsyandexproject.utils.isEodValid
+import com.sample.mdsyandexproject.utils.isPreviousClosePriceValid
 import java.text.DecimalFormat
 import java.util.*
 import kotlin.math.absoluteValue
@@ -83,7 +83,7 @@ fun ImageView.loadingPrice(stockItem: StockItem) {
             this.visibility = View.GONE
         }
         !isCurrentPriceValid(stockItem)
-                || !isEodValid(stockItem = stockItem) -> {
+                || !isPreviousClosePriceValid(stockItem = stockItem) -> {
             this.setImageResource(R.drawable.loading_animation)
             this.visibility = View.VISIBLE
         }
@@ -97,32 +97,34 @@ fun ImageView.loadingPrice(stockItem: StockItem) {
 fun TextView.currentPrice(stockItem: StockItem) {
     // check if price is outdated
     val isCurValid = isCurrentPriceValid(stockItem)
-    val isEodValid = isEodValid(stockItem = stockItem)
+    val isPrevValid = isPreviousClosePriceValid(stockItem = stockItem)
     when {
         stockItem.error != null || stockItem.errorMessage != null -> {
             this.visibility = View.GONE
         }
         !isCurValid
-                || !isEodValid -> {
+                || !isPrevValid -> {
             this.visibility = View.GONE
         }
         else -> {
-            val price = if (isCurValid) stockItem.currentPrice else stockItem.eod
-            val decimalFormat = DecimalFormat("#,###.##")
-            decimalFormat.isDecimalSeparatorAlwaysShown = false
-            val c: String = try {
-                if (stockItem.currency != null) Currency.getInstance(stockItem.currency).symbol else ""
-            } catch (ex: Exception) {
-                Log.e("BindingAdapter", "currency (${stockItem.currency}) of ticker: ${stockItem.ticker} couldn't be defined")
-                ex.toString()
-                stockItem.currency ?: ""
+            val curPrice = stockItem.currentPrice
+            if (curPrice != null) {
+                val decimalFormat = DecimalFormat("#,###.##")
+                decimalFormat.isDecimalSeparatorAlwaysShown = false
+                val c: String = try {
+                    if (stockItem.currency != null) Currency.getInstance(stockItem.currency).symbol else ""
+                } catch (ex: Exception) {
+                    Log.e("BindingAdapter", "currency (${stockItem.currency}) of ticker: ${stockItem.ticker} couldn't be defined")
+                    ex.toString()
+                    stockItem.currency ?: ""
+                }
+                this.visibility = View.VISIBLE
+                text = resources.getString(
+                    R.string.current_price,
+                    decimalFormat.format(curPrice),
+                    c
+                )
             }
-            this.visibility = View.VISIBLE
-            text = resources.getString(
-                R.string.current_price,
-                decimalFormat.format(price),
-                c
-            )
         }
     }
 }
@@ -130,41 +132,37 @@ fun TextView.currentPrice(stockItem: StockItem) {
 @BindingAdapter("dayDeltaPrice")
 fun TextView.dayDeltaPrice(stockItem: StockItem) {
     val isCurValid = isCurrentPriceValid(stockItem)
-    val isEodValid = isEodValid(stockItem = stockItem)
+    val isPrevValid  = isPreviousClosePriceValid(stockItem = stockItem)
     when {
         !isCurValid
-                || !isEodValid -> {
+                || !isPrevValid -> {
             this.visibility = View.GONE
         }
         else -> {
             val decimalFormat = DecimalFormat("#,###.##")
-            if (stockItem.eod != null && stockItem.previousEod != null) {
-                stockItem.currentPrice?.let {
-                    val dayDelta =
-                        if (isCurValid) stockItem.currentPrice.minus(stockItem.eod)
-                        else stockItem.eod - stockItem.previousEod
-                    val percent =
-                        if (!isEodValid) dayDelta * 100 / stockItem.eod
-                        else dayDelta * 100 / stockItem.previousEod
-                    val sign = when (dayDelta.sign) {
-                        1.0f -> {
-                            setTextColor(resources.getColor(R.color.positive_day_delta))
-                            "+"
-                        }
-                        -1.0f -> {
-                            setTextColor(resources.getColor(R.color.negative_day_delta))
-                            "-"
-                        }
-                        else -> ""
+            val prevPrice = stockItem.previousClosePrice
+            val curPrice = stockItem.currentPrice
+            if (prevPrice != null && curPrice != null) {
+                val dayDelta = curPrice - prevPrice
+                val percent = dayDelta * 100 / prevPrice
+                val sign = when (dayDelta.sign) {
+                    1.0f -> {
+                        setTextColor(resources.getColor(R.color.positive_day_delta))
+                        "+"
                     }
-                    this.visibility = View.VISIBLE
-                    text = resources.getString(
-                        R.string.day_delta_price,
-                        sign,
-                        decimalFormat.format(dayDelta.absoluteValue),
-                        decimalFormat.format(percent.absoluteValue)
-                    )
+                    -1.0f -> {
+                        setTextColor(resources.getColor(R.color.negative_day_delta))
+                        "-"
+                    }
+                    else -> ""
                 }
+                this.visibility = View.VISIBLE
+                text = resources.getString(
+                    R.string.day_delta_price,
+                    sign,
+                    decimalFormat.format(dayDelta.absoluteValue),
+                    decimalFormat.format(percent.absoluteValue)
+                )
             }
         }
     }

@@ -3,7 +3,7 @@ package com.sample.mdsyandexproject
 import com.sample.mdsyandexproject.domain.StockItem
 import com.sample.mdsyandexproject.utils.EST
 import com.sample.mdsyandexproject.utils.isCurrentPriceValid
-import com.sample.mdsyandexproject.utils.isEodValid
+import com.sample.mdsyandexproject.utils.isPreviousClosePriceValid
 import org.hamcrest.core.Is.`is`
 import org.joda.time.DateTime
 import org.junit.Test
@@ -63,109 +63,109 @@ class UtilsTest {
 
     @Test
     fun isEodValidTest() {
-        val monday = DateTime.now().withDayOfWeek(1).withZone(EST)
-        val tuesday = DateTime.now().withDayOfWeek(2).withZone(EST)
-        val wednesday = DateTime.now().withDayOfWeek(3).withZone(EST)
-        val thursday = DateTime.now().withDayOfWeek(4).withZone(EST)
-        val friday = DateTime.now().withDayOfWeek(5).withZone(EST)
-        val saturday = DateTime.now().withDayOfWeek(6).withZone(EST)
-        val sunday = DateTime.now().withDayOfWeek(7).withZone(EST)
+        val monday = DateTime.now().withDayOfWeek(1)
+        val tuesday = DateTime.now().withDayOfWeek(2)
+        val wednesday = DateTime.now().withDayOfWeek(3)
+        val thursday = DateTime.now().withDayOfWeek(4)
+        val friday = DateTime.now().withDayOfWeek(5)
+        val saturday = DateTime.now().withDayOfWeek(6)
+        val sunday = DateTime.now().withDayOfWeek(7)
 
-        val monday_monday = isEodValid(
+        val monday_monday = isPreviousClosePriceValid(
             currentDate = monday.toLocalDate(),
             StockItem(
                 ticker = "ticker",
                 companyName = "testCompanyName",
-                eodDate = monday.millis,
-                eod = 1.1f
+                previousClosePriceDate = monday.millis,
+                previousClosePrice = 1.1f
             )
         )
-        val thuesday_monday = isEodValid(
+        val thuesday_monday = isPreviousClosePriceValid(
             currentDate = tuesday.toLocalDate(),
             StockItem(
                 ticker = "ticker",
                 companyName = "testCompanyName",
-                eodDate = monday.millis,
-                eod = 1.1f
+                previousClosePriceDate = monday.millis,
+                previousClosePrice = 1.1f
             )
         )
-        val wendsday_monday = isEodValid(
+        val wendsday_monday = isPreviousClosePriceValid(
             currentDate = wednesday.toLocalDate(),
             StockItem(
                 ticker = "ticker",
                 companyName = "testCompanyName",
-                eodDate = monday.millis,
-                eod = 1.1f
+                previousClosePriceDate = monday.millis,
+                previousClosePrice = 1.1f
             )
         )
-        val friday_monday = isEodValid(
+        val friday_monday = isPreviousClosePriceValid(
             currentDate = friday.toLocalDate(),
             StockItem(
                 ticker = "ticker",
                 companyName = "testCompanyName",
-                eodDate = monday.millis,
-                eod = 1.1f
+                previousClosePriceDate = monday.millis,
+                previousClosePrice = 1.1f
             )
         )
-        val monday_previousWeekFriday = isEodValid(
+        val monday_previousWeekFriday = isPreviousClosePriceValid(
             currentDate = monday.toLocalDate(),
             // take a friday from previous week
             StockItem(
                 ticker = "ticker",
                 companyName = "testCompanyName",
-                eodDate = friday.withWeekOfWeekyear(friday.weekOfWeekyear().get() - 1).millis,
-                eod = 1.1f
+                previousClosePriceDate = friday.withWeekOfWeekyear(friday.weekOfWeekyear().get() - 1).millis,
+                previousClosePrice = 1.1f
             )
 
         )
-        val monday_previousWeekThursday = isEodValid(
+        val monday_previousWeekThursday = isPreviousClosePriceValid(
             currentDate = monday.toLocalDate(),
             // take a thursday from previous week
             StockItem(
                 ticker = "ticker",
                 companyName = "testCompanyName",
-                eodDate = thursday.withWeekOfWeekyear(thursday.weekOfWeekyear().get() - 1).millis,
-                eod = 1.1f
+                previousClosePriceDate = thursday.withWeekOfWeekyear(thursday.weekOfWeekyear().get() - 1).millis,
+                previousClosePrice = 1.1f
             )
         )
-        val sunday_friday = isEodValid(
+        val sunday_friday = isPreviousClosePriceValid(
             currentDate = sunday.toLocalDate(),
             StockItem(
                 ticker = "ticker",
                 companyName = "testCompanyName",
-                eodDate = friday.millis,
-                eod = 1.1f
+                previousClosePriceDate = friday.millis,
+                previousClosePrice = 1.1f
             )
         )
-        val sunday_thursday = isEodValid(
+        val sunday_thursday = isPreviousClosePriceValid(
             currentDate = sunday.toLocalDate(),
             StockItem(
                 ticker = "ticker",
                 companyName = "testCompanyName",
-                eodDate = thursday.millis,
-                eod = 1.1f
+                previousClosePriceDate = thursday.millis,
+                previousClosePrice = 1.1f
             )
         )
-        val sunday_monday = isEodValid(
+        val sunday_monday = isPreviousClosePriceValid(
             currentDate = sunday.toLocalDate(),
             StockItem(
                 ticker = "ticker",
                 companyName = "testCompanyName",
-                eodDate = monday.millis,
-                eod = 1.1f
+                previousClosePriceDate = monday.millis,
+                previousClosePrice = 1.1f
             )
         )
-        val saturday_friday = isEodValid(
+        val saturday_friday = isPreviousClosePriceValid(
             currentDate = saturday.toLocalDate(),
             StockItem(
                 ticker = "ticker",
                 companyName = "testCompanyName",
-                eodDate = friday.millis,
-                eod = 1.1f
+                previousClosePriceDate = friday.millis,
+                previousClosePrice = 1.1f
             )
         )
 
-        val friday_null = isEodValid(
+        val friday_null = isPreviousClosePriceValid(
             currentDate = friday.toLocalDate(),
             StockItem(
                 ticker = "ticker",

@@ -1,8 +1,7 @@
 package com.sample.mdsyandexproject.network
 
-import com.sample.mdsyandexproject.database.DatabaseStockItem
 import com.sample.mdsyandexproject.database.Prices
-import com.sample.mdsyandexproject.domain.StockItem
+import com.sample.mdsyandexproject.database.SPIndices
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.Json
 import com.squareup.moshi.ToJson
@@ -39,40 +38,6 @@ data class IndicesList(
     val symbol: String
 )
 
-data class MarketStackEodPrices(
-    val pagination: Pagination,
-    val data: List<EodPrice>
-)
-
-data class EodPrice(
-    // date in ISO-8601 format
-    val date: String,
-    @Json(name = "symbol") val ticker: String,
-    val exchange: String,
-    val open: Float,
-    val high: Float,
-    val low: Float,
-    val close: Float,
-    val volume: Float,
-)
-
-data class MarketStackTickersResponse(
-    val pagination: Pagination,
-    val data: List<MarketStackItem>
-)
-
-data class MarketStackItem(
-    @Json(name = "name") val companyName: String,
-    @Json(name = "symbol") val ticker: String
-)
-
-data class Pagination(
-    val limit: Int,
-    val offset: Int,
-    val count: Int,
-    val total: Int
-)
-
 data class UpdatePrices(
     val type: String? = null,
     val data: List<Data>? = null,
@@ -93,7 +58,8 @@ data class Quote(
     @Json(name = "o") val openPrice: Float? = null,
     @Json(name = "pc") val previousClosePrice: Float? = null,
     @Json(name = "t") val timestamp: Long? = null,
-    @Json(name = "error") val errorMessage: String? = null
+    @Json(name = "error") val errorMessage: String? = null,
+    val errorCode: String? = null
 )
 
 data class DataJson(
@@ -153,38 +119,12 @@ fun List<Data>.asPrices(): List<Prices> {
     }
 }
 
-fun MarketStackTickersResponse.asStockItemDomainModel(): List<StockItem> {
-    return this.data.map {
-        StockItem(
-            ticker = it.ticker,
-            companyName = it.companyName,
-        )
-    }
-}
-
-fun MarketStackTickersResponse.asStockItemDatabaseModel(): List<DatabaseStockItem> {
-    return this.data.map {
-        DatabaseStockItem(
-            ticker = it.ticker,
-            companyName = it.companyName
-        )
-    }
-}
-
-fun SearchResultResponse.asStockItemDomainModel(): List<StockItem> {
-    return this.result.map {
-        StockItem(
-            ticker = it.symbol,
-            companyName = it.description
-        )
-    }
-}
-
-fun SearchResultResponse.asStockItemDatabaseModel(): List<DatabaseStockItem> {
-    return this.result.map {
-        DatabaseStockItem(
-            ticker = it.symbol,
-            companyName = it.description
+fun IndicesList.asDatabaseModel(): List<SPIndices> {
+    return this.indicesList.map {
+        SPIndices(
+            indices = it,
+            symbol = this.symbol,
+            isLoaded = false
         )
     }
 }
