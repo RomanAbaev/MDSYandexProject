@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.sample.mdsyandexproject.database.*
 import com.sample.mdsyandexproject.domain.StockItem
+import com.sample.mdsyandexproject.domain.asDatabaseModel
 import com.sample.mdsyandexproject.domain.asFavouriteDatabaseModel
 import com.sample.mdsyandexproject.network.*
 import com.sample.mdsyandexproject.utils.isCompanyInfoValid
@@ -84,11 +85,11 @@ class RepositoryImpl {
         return when (showFavouriteList) {
             true ->
                 Transformations.map(database.getFavouriteList()) {
-                    it.asStockItemDomainModel()
+                    it.asDomainModel()
                 }
             else ->
                 Transformations.map(database.getAll()) {
-                    it.asStockItemDomainModel()
+                    it.asDomainModel()
                 }
         }
     }
@@ -206,6 +207,16 @@ class RepositoryImpl {
         }
     }
 
+    suspend fun isExistInDb(stockItem: StockItem) {
+        val _stockItem = database.getStockItem(stockItem.ticker)
+        if (_stockItem != null) {
+            updateFavouriteStock(stockItem)
+        } else {
+            stockItem.isFavourite = true
+            database.insertStockItem(stockItem.asDatabaseModel())
+        }
+    }
+
     suspend fun updateFavouriteStock(stockItem: StockItem) {
         database.updateFavouriteStock(stockItem.asFavouriteDatabaseModel())
     }
@@ -221,10 +232,18 @@ class RepositoryImpl {
     }
 
     suspend fun submitSearch(query: String): MutableList<StockItem> {
-        // TODO to aggregate data from different sources (db and network)
-        val stockItemList =
-            finnHubApi.submitSearch(query).await()
-        return stockItemList.result.map {
+
+        // get all from database base on this query
+        val stockItemListFromDb: MutableList<StockItem> = database.search("%$query%").asDomainModel().toMutableList()
+        var stockItemListNetwork: SearchResultResponse? = null
+
+        try {
+            stockItemListNetwork = finnHubApi.submitSearch(query).await()
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+
+        val resultListFromNetwork: MutableList<StockItem>? = stockItemListNetwork?.result?.map {
             delay(1000)
             var q: Quote? = null
             var cp: CompanyProfile2? = null
@@ -261,7 +280,14 @@ class RepositoryImpl {
                     errorMessage = q?.errorMessage
                 )
             } else null
-        }.filterNotNull().toMutableList()
+        }?.filterNotNull()?.toMutableList()
+
+        return if (resultListFromNetwork != null) {
+            stockItemListFromDb.addAll(resultListFromNetwork)
+            stockItemListFromDb.distinctBy { it.ticker }.toMutableList()
+        } else {
+            stockItemListFromDb
+        }
     }
 
     @ExperimentalCoroutinesApi

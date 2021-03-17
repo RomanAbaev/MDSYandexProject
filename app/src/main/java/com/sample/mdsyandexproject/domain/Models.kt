@@ -2,10 +2,11 @@ package com.sample.mdsyandexproject.domain
 
 import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
+import com.sample.mdsyandexproject.database.DatabaseStockItem
 import com.sample.mdsyandexproject.database.FavouriteDatabaseModel
 
 
-// TODO: Подумать о том какой тип должен быть у CurrentPrice и DayDelta
+// TODO: удалить неиспользуемые поля eod и т.д.
 
 data class StockItem(
     val ticker: String,
@@ -37,5 +38,19 @@ fun StockItem.asFavouriteDatabaseModel(): FavouriteDatabaseModel {
     return FavouriteDatabaseModel(
         ticker = this.ticker,
         isFavourite = this.isFavourite
+    )
+}
+
+fun StockItem.asDatabaseModel(): DatabaseStockItem {
+    return DatabaseStockItem(
+        ticker = this.ticker,
+        companyName = this.companyName,
+        logoUrl = this.logoUrl,
+        isFavourite = this._isFavourite,
+        currentPrice = this.currentPrice,
+        currentPriceDate = this.currentPriceDate,
+        previousClosePriceDate = this.previousClosePriceDate,
+        previousClosePrice = this.previousClosePrice,
+        currency = this.currency
     )
 }

@@ -22,10 +22,13 @@ import kotlin.math.sign
 fun ImageView.isFavourite(item: StockItem?) {
     item?.let {
         when {
+            item.error != null || item.errorMessage != null -> this.visibility = View.GONE
             item.isFavourite -> {
+                this.visibility = View.VISIBLE
                 setBackgroundResource(R.drawable.ic_favour)
             }
             else -> {
+                this.visibility = View.VISIBLE
                 setBackgroundResource(R.drawable.ic_favour_not)
             }
         }
@@ -114,7 +117,10 @@ fun TextView.currentPrice(stockItem: StockItem) {
                 val c: String = try {
                     if (stockItem.currency != null) Currency.getInstance(stockItem.currency).symbol else ""
                 } catch (ex: Exception) {
-                    Log.e("BindingAdapter", "currency (${stockItem.currency}) of ticker: ${stockItem.ticker} couldn't be defined")
+                    Log.e(
+                        "BindingAdapter",
+                        "currency (${stockItem.currency}) of ticker: ${stockItem.ticker} couldn't be defined"
+                    )
                     ex.toString()
                     stockItem.currency ?: ""
                 }
@@ -132,7 +138,7 @@ fun TextView.currentPrice(stockItem: StockItem) {
 @BindingAdapter("dayDeltaPrice")
 fun TextView.dayDeltaPrice(stockItem: StockItem) {
     val isCurValid = isCurrentPriceValid(stockItem)
-    val isPrevValid  = isPreviousClosePriceValid(stockItem = stockItem)
+    val isPrevValid = isPreviousClosePriceValid(stockItem = stockItem)
     when {
         !isCurValid
                 || !isPrevValid -> {

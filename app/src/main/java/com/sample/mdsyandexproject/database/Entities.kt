@@ -108,7 +108,7 @@ class Converters {
     }
 }
 
-fun List<DatabaseStockItem>.asStockItemDomainModel(): List<StockItem> {
+fun List<DatabaseStockItem>.asDomainModel(): List<StockItem> {
     return map {
         StockItem(
             ticker = it.ticker,

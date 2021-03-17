@@ -87,7 +87,8 @@ class SearchFragment : Fragment() {
             when (actionId) {
                 EditorInfo.IME_ACTION_DONE -> {
                     // make request to api
-                    hideSearchResult(v)
+                    adapter.submitList(null)
+                    hideSoftKeyboard(v)
                     searchViewModel.submitSearch(v.text.toString())
                     showSearchResult()
                     true
@@ -195,7 +196,7 @@ class SearchFragment : Fragment() {
         }
     }
 
-    private fun hideSearchResult(view: View) {
+    private fun hideSoftKeyboard(view: View) {
         val imm =
             requireNotNull(context).getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(view.windowToken, InputMethodManager.HIDE_IMPLICIT_ONLY)

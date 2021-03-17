@@ -42,7 +42,11 @@ class SearchViewModel : ViewModel() {
     }
 
     fun onFavouriteButtonClicked(stockItem: StockItem) {
-
+        stockItem.isFavourite = !stockItem.isFavourite
+        viewModelScope.launch(Dispatchers.IO) {
+            // check if stockItem exist in db and if not load it form network and cache
+            repository.isExistInDb(stockItem)
+        }
     }
 
     private fun getMockPopularRequest(): List<String> =

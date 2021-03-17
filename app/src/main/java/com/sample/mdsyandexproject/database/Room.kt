@@ -53,6 +53,15 @@ interface StockItemDao {
 
     @Update(entity = SPIndices::class)
     suspend fun updateSPIndices(spIndices: List<SPIndices>)
+
+    @Query("select * from DatabaseStockItem where ticker like :query OR companyName like :query")
+    suspend fun search(query: String): List<DatabaseStockItem>
+
+    @Query("select * from DatabaseStockItem where ticker = :ticker")
+    suspend fun getStockItem(ticker: String): DatabaseStockItem?
+
+    @Insert
+    suspend fun insertStockItem(databaseStockItem: DatabaseStockItem)
 }
 
 @Database(
