@@ -4,6 +4,7 @@ import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
 import com.sample.mdsyandexproject.database.DatabaseStockItem
 import com.sample.mdsyandexproject.database.FavouriteDatabaseModel
+import java.io.Serializable
 
 
 // TODO: удалить неиспользуемые поля eod и т.д.
@@ -25,7 +26,7 @@ data class StockItem(
     var errorMessage: String? = null,
     val previousClosePrice: Float? = null,
     val previousClosePriceDate: Long? = null
-) : BaseObservable() {
+) : BaseObservable(), Serializable {
     var isFavourite: Boolean
         @Bindable get() = _isFavourite
         set(value) {

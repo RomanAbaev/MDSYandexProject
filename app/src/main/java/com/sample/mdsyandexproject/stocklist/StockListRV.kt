@@ -16,7 +16,8 @@ class StockItemAdapter(
     private val favBtnListener: FavBtnListener,
     private val subscribeListener: SubscribePriceUpdateListener,
     private val unsubscribeListener: UnsubscribePriceUpdateListener,
-    private val updateStockItemInformationListener: UpdateStockItemInformationListener? = null
+    private val updateStockItemInformationListener: UpdateStockItemInformationListener? = null,
+    private val stockItemListener: StockItemListener? = null
 ) :
     ListAdapter<StockItem, RecyclerView.ViewHolder>(StockListDiffCallback()) {
 
@@ -37,10 +38,10 @@ class StockItemAdapter(
         val item: StockItem? = getItem(position)
         when (holder) {
             is DarkViewHolder -> {
-                holder.bind(favBtnListener, item)
+                holder.bind(favBtnListener, item, stockItemListener)
             }
             is LightViewHolder -> {
-                holder.bind(favBtnListener, item)
+                holder.bind(favBtnListener, item, stockItemListener)
             }
         }
     }
@@ -105,10 +106,13 @@ class StockItemAdapter(
         RecyclerView.ViewHolder(binding.root) {
         var stockItem: StockItem? = null
 
-        fun bind(favBtnListener: FavBtnListener, stockItem: StockItem?) {
+        fun bind(favBtnListener: FavBtnListener, stockItem: StockItem?, stockItemListener: StockItemListener?) {
             this.stockItem = stockItem
             binding.stockItem = stockItem
             binding.favBtnListener = favBtnListener
+            binding.root.setOnClickListener {
+                stockItemListener?.stockItemClick(stockItem)
+            }
             binding.executePendingBindings()
         }
 
@@ -127,10 +131,13 @@ class StockItemAdapter(
 
         var stockItem: StockItem? = null
 
-        fun bind(favBtnListener: FavBtnListener, stockItem: StockItem?) {
+        fun bind(favBtnListener: FavBtnListener, stockItem: StockItem?, stockItemListener: StockItemListener?) {
             this.stockItem = stockItem
             binding.stockItem = stockItem
             binding.favBtnListener = favBtnListener
+            binding.root.setOnClickListener {
+                stockItemListener?.stockItemClick(stockItem)
+            }
             binding.executePendingBindings()
         }
 
@@ -181,5 +188,13 @@ class UpdateStockItemInformationListener(
 ) {
     fun updateStockItemInformation(stockItem: StockItem) {
         updateStockItemInformationListener(stockItem)
+    }
+}
+
+class StockItemListener(
+    val stockItemClickListener: (stockItem: StockItem?) -> Unit
+) {
+    fun stockItemClick(stockItem: StockItem?) {
+        stockItemClickListener(stockItem)
     }
 }

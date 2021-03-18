@@ -40,7 +40,7 @@ data class SPIndices(
     @PrimaryKey
     val indices: String,
     val isLoaded: Boolean,
-    val symbol: String
+    val symbol: String = "^GSPC"
 )
 
 data class QuoteAndCompanyProfileDb(

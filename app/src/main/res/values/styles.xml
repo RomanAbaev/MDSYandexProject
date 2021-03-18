@@ -15,6 +15,13 @@
         <item name="lineHeight">24sp</item>
     </style>
 
+    <style name="tab_text_style">
+        <item name="android:textColor">@color/grey</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">18sp</item>
+        <item name="lineHeight">24sp</item>
+    </style>
+
     <style name="H2_text_style_unselected">
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">18sp</item>

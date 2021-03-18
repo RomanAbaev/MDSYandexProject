@@ -4,6 +4,7 @@ plugins {
     id 'kotlin-kapt'
     id 'com.google.gms.google-services'
     id 'com.google.firebase.crashlytics'
+    id 'androidx.navigation.safeargs'
 }
 
 android {
@@ -53,7 +54,6 @@ android {
 }
 
 dependencies {
-    def navigation_version = "2.3.3"
     def coroutine_version = "1.4.1"
     def lifecycle_version = "2.2.0"
     def glide_version = "4.8.0"
@@ -120,4 +120,7 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:26.6.0')
     implementation 'com.google.firebase:firebase-crashlytics-ktx'
     implementation 'com.google.firebase:firebase-analytics-ktx'
+
+    // viewpager2
+    implementation "androidx.viewpager2:viewpager2:1.0.0"
 }

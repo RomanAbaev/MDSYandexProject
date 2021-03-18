@@ -213,6 +213,14 @@ class RepositoryImpl {
             updateFavouriteStock(stockItem)
         } else {
             stockItem.isFavourite = true
+            database.updateSPIndices(
+                listOf(
+                    SPIndices(
+                        indices = stockItem.ticker,
+                        isLoaded = true,
+                    )
+                )
+            )
             database.insertStockItem(stockItem.asDatabaseModel())
         }
     }

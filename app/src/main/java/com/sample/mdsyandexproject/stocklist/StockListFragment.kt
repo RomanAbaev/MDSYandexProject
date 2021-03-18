@@ -15,6 +15,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.sample.mdsyandexproject.R
 import com.sample.mdsyandexproject.databinding.FragmentStockListBinding
+import com.sample.mdsyandexproject.domain.StockItem
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 
@@ -44,17 +45,20 @@ class StockListFragment : Fragment() {
         val manager = LinearLayoutManager(activity)
         binding.stockList.layoutManager = manager
         val adapter = StockItemAdapter(
-            FavBtnListener {
+            favBtnListener = FavBtnListener {
                 stockListViewModel.onFavouriteButtonClicked(it)
             },
-            SubscribePriceUpdateListener {
+            subscribeListener = SubscribePriceUpdateListener {
                 stockListViewModel.subscribeToTickerPriceUpdate(it)
             },
-            UnsubscribePriceUpdateListener {
+            unsubscribeListener = UnsubscribePriceUpdateListener {
                 stockListViewModel.unsubscribeToTickerPriceUpdate(it)
             },
-            UpdateStockItemInformationListener {
+            updateStockItemInformationListener = UpdateStockItemInformationListener {
                 stockListViewModel.updateStockItemInformation(it)
+            },
+            stockItemListener = StockItemListener {
+                navigateToStockItem(it)
             }
         )
         binding.stockList.adapter = adapter
@@ -127,5 +131,12 @@ class StockListFragment : Fragment() {
             })
 
         return binding.root
+    }
+
+    private fun navigateToStockItem(stockItem: StockItem?) {
+        findNavController().navigate(
+            StockListFragmentDirections.actionStockListFragmentToStockItemFragment()
+                .setStockItem(stockItem)
+        )
     }
 }

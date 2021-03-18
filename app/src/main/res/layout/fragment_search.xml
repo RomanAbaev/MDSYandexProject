@@ -35,7 +35,7 @@
                 <!-- TODO: как-то надо убрать подчеркивание текста  -->
 
                 <ImageView
-                    android:id="@+id/left_search_drawable"
+                    android:id="@+id/left_drawable"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"

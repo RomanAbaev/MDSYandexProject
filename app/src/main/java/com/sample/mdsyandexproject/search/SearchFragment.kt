@@ -102,7 +102,7 @@ class SearchFragment : Fragment() {
             showEmptySearch()
         }
 
-        binding.leftSearchDrawable.setOnClickListener {
+        binding.leftDrawable.setOnClickListener {
             findNavController().navigate(R.id.action_searchFragment_to_stockListFragment)
         }
 
@@ -135,12 +135,12 @@ class SearchFragment : Fragment() {
         searchViewModel.isSearchActive.observe(viewLifecycleOwner, { isActive ->
             when {
                 isActive -> {
-                    binding.leftSearchDrawable.setImageResource(R.drawable.ic_back_arrow)
+                    binding.leftDrawable.setImageResource(R.drawable.ic_back_arrow)
                     binding.searchResultList.visibility = View.GONE
                 }
                 else -> {
                     binding.searchText.clearFocus()
-                    binding.leftSearchDrawable.setImageResource(R.drawable.ic_search_right)
+                    binding.leftDrawable.setImageResource(R.drawable.ic_search_right)
                     binding.searchResultList.visibility = View.VISIBLE
                 }
             }
