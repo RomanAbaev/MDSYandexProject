@@ -16,6 +16,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import com.google.android.material.snackbar.Snackbar
 import com.sample.mdsyandexproject.R
 import com.sample.mdsyandexproject.databinding.FragmentSearchBinding
 import com.sample.mdsyandexproject.stocklist.FavBtnListener
@@ -146,6 +147,23 @@ class SearchFragment : Fragment() {
             }
         })
 
+        searchViewModel.submitSearchException.observe(viewLifecycleOwner,
+            {
+                when (it.first) {
+                    true -> {
+                        // show snackbar with message and try button with callback = loadNextChunks()
+                        Snackbar.make(
+                            binding.root,
+                            it.second,
+                            Snackbar.LENGTH_INDEFINITE
+                        ).setAction(getString(R.string.try_again)) {
+                            searchViewModel.onTriedAgainBtnClick()
+                            searchViewModel.submitSearch(binding.searchText.text.toString())
+                        }.show()
+                    }
+                }
+            }
+        )
 
         return binding.root
     }

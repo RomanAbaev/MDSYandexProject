@@ -32,8 +32,8 @@ class RepositoryImpl {
 
     private val updateRequestQ = ConcurrentHashMap<String, Int>()
 
-    private val networkException = MutableLiveData<Boolean>(false)
-    private var interruptedNetworkCall = null
+    val loadNextChunksException = MutableLiveData<Pair<Boolean, String>>()
+    val submitSearchException = MutableLiveData<Pair<Boolean, String>>()
 
     private var moshi: Moshi = Moshi.Builder()
         .add(DataJsonAdapter())
@@ -101,10 +101,24 @@ class RepositoryImpl {
     }
 
     suspend fun loadNextChunks() {
-        val spIndices = database.getNextUnloadedIndices(limit)
-        if (spIndices.isNotEmpty()) {
-            loadCompanyInfoAndQuote(spIndices)
+        try {
+            if (database.getIndicesCount() == 0) {
+                prepopulateData()
+            } else {
+                val spIndices = database.getNextUnloadedIndices(limit)
+                if (spIndices.isNotEmpty()) {
+                    loadCompanyInfoAndQuote(spIndices)
+                }
+            }
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            loadNextChunksException.postValue(Pair(true, ex.message.toString()))
         }
+    }
+
+    suspend fun prepopulateData() {
+        loadSPIndicesToDB()
+        loadNextChunks()
     }
 
     private suspend fun loadCompanyInfoAndQuote(spIndices: List<SPIndices>) {
@@ -233,22 +247,24 @@ class RepositoryImpl {
         try {
             val spIndices = finnHubApi.getTop500Indices().await().asDatabaseModel()
             database.insertAllSPIndices(spIndices)
-        } catch (timeout: SocketTimeoutException) {
-            networkException.postValue(true)
-//            interruptedNetworkCall = this::loadSPIndicesToDB
+        } catch (socketEx: SocketTimeoutException) {
+            socketEx.printStackTrace()
+        } catch (ex: Exception) {
+            ex.printStackTrace()
         }
     }
 
     suspend fun submitSearch(query: String): MutableList<StockItem> {
-
         // get all from database base on this query
-        val stockItemListFromDb: MutableList<StockItem> = database.search("%$query%").asDomainModel().toMutableList()
+        val stockItemListFromDb: MutableList<StockItem> =
+            database.search("%$query%").asDomainModel().toMutableList()
         var stockItemListNetwork: SearchResultResponse? = null
-
+        // TODO try again button
         try {
             stockItemListNetwork = finnHubApi.submitSearch(query).await()
         } catch (ex: Exception) {
             ex.printStackTrace()
+            submitSearchException.postValue(Pair(true, ex.message.toString()))
         }
 
         val resultListFromNetwork: MutableList<StockItem>? = stockItemListNetwork?.result?.map {

@@ -37,6 +37,8 @@ class SearchViewModel : ViewModel() {
 
     val requestQ = ConcurrentHashMap<String, Int>()
 
+    val submitSearchException: LiveData<Pair<Boolean, String>> = repository.submitSearchException
+
     fun toggleSearch(active: Boolean) {
         _isSearchActive.value = active;
     }
@@ -104,6 +106,10 @@ class SearchViewModel : ViewModel() {
                 requestQ.remove(query)
             }
         }
+    }
+
+    fun onTriedAgainBtnClick() {
+        repository.submitSearchException.value = Pair(false, "")
     }
 
     fun cancelJob() {

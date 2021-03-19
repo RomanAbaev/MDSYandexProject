@@ -91,8 +91,12 @@ fun getDatabase(): StockDatabase {
                     // prepopulate database
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         scope.launch {
-                            Repository.instance.loadSPIndicesToDB()
-                            Repository.instance.loadNextChunks()
+                            try {
+                                Repository.instance.prepopulateData()
+                            } catch (ex: Exception) {
+                                ex.printStackTrace()
+                                Repository.instance.loadNextChunksException.postValue(Pair(true, ex.message.toString()))
+                            }
                         }
                     }
 
@@ -101,8 +105,12 @@ fun getDatabase(): StockDatabase {
                             // check if SPIndices wasn't loaded in onCreate methods (and reload it if needed)
                             val count = INSTANCE.dao.getIndicesCount()
                             if (count == 0) {
-                                Repository.instance.loadSPIndicesToDB()
-                                Repository.instance.loadNextChunks()
+                                try {
+                                    Repository.instance.prepopulateData()
+                                } catch (ex: Exception) {
+                                    ex.printStackTrace()
+                                    Repository.instance.loadNextChunksException.postValue(Pair(true, ex.message.toString()))
+                                }
                             }
                         }
                     }

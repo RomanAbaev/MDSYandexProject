@@ -15,4 +15,7 @@
     <string name="loading_price_image">loading price image</string>
     <string name="error_price_image">error_price_message</string>
     <string name="error_message">ErrorCode: %1$s; errorMessage: %2$s</string>
+    <string name="connected">Your internet connection is fine</string>
+    <string name="lost_connection">Your internet connection is unavailable</string>
+    <string name="try_again">Try again</string>
 </resources>

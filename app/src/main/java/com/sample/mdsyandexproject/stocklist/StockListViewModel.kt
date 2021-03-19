@@ -23,12 +23,13 @@ class StockListViewModel : ViewModel() {
     val stockList: LiveData<List<StockItem>>
         get() = _stockList
 
+    val loadNextChunksException: LiveData<Pair<Boolean, String>> = repository.loadNextChunksException
+
     init {
         viewModelScope.launch(Dispatchers.IO) {
             repository.refreshData()
         }
     }
-
 
     fun updateStockItemInformation(stockItem: StockItem) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -70,6 +71,10 @@ class StockListViewModel : ViewModel() {
             }
             loading.value = false
         }
+    }
+
+    fun onTriedAgainBtnClick() {
+        repository.loadNextChunksException.value = Pair(false, "")
     }
 
     @ExperimentalCoroutinesApi

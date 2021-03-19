@@ -13,6 +13,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import com.sample.mdsyandexproject.R
 import com.sample.mdsyandexproject.databinding.FragmentStockListBinding
 import com.sample.mdsyandexproject.domain.StockItem
@@ -128,8 +129,26 @@ class StockListFragment : Fragment() {
                         binding.stockList.scrollToPosition(0)
                     }
                 }
-            })
+            }
+        )
 
+        stockListViewModel.loadNextChunksException.observe(viewLifecycleOwner,
+            {
+                when (it.first) {
+                    true -> {
+                        // show snackbar with message and try button with callback = loadNextChunks()
+                        Snackbar.make(
+                            binding.root,
+                            it.second,
+                            Snackbar.LENGTH_INDEFINITE
+                        ).setAction(getString(R.string.try_again)) {
+                            stockListViewModel.onTriedAgainBtnClick()
+                            stockListViewModel.loadNextChunks()
+                        }.show()
+                    }
+                }
+            }
+        )
         return binding.root
     }
 
