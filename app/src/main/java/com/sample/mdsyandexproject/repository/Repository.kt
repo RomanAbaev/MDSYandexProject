@@ -24,8 +24,6 @@ import java.util.concurrent.ConcurrentHashMap
 class RepositoryImpl {
 
     private val database = getDatabase().dao
-
-    //    private val marketStackApi = MarketStackApi.marketStackService
     private val finnHubApi = FinnHubApi.finnHubService
 
     private lateinit var webSocketProvider: WebSocketProvider
@@ -34,6 +32,7 @@ class RepositoryImpl {
 
     val loadNextChunksException = MutableLiveData<Pair<Boolean, String>>()
     val submitSearchException = MutableLiveData<Pair<Boolean, String>>()
+    val loadCandleInfoException = MutableLiveData<Pair<Boolean, String>>()
 
     private var moshi: Moshi = Moshi.Builder()
         .add(DataJsonAdapter())
@@ -311,6 +310,20 @@ class RepositoryImpl {
             stockItemListFromDb.distinctBy { it.ticker }.toMutableList()
         } else {
             stockItemListFromDb
+        }
+    }
+
+    suspend fun loadCandleInfo(ticker: String, from: Long, to: Long): Candles? {
+        return try {
+            finnHubApi.loadCandleInfo(
+                ticker = ticker,
+                from = from,
+                to = to
+            ).await()
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            loadCandleInfoException.postValue(Pair(true, ex.message.toString()))
+            null
         }
     }
 

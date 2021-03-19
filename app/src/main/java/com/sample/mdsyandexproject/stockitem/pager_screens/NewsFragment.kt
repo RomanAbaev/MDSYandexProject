@@ -1,4 +1,4 @@
-package com.sample.mdsyandexproject.stockitem.pagerscreens
+package com.sample.mdsyandexproject.stockitem.pager_screens
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,9 +7,9 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import com.sample.mdsyandexproject.R
-import com.sample.mdsyandexproject.databinding.FragmentChartBinding
+import com.sample.mdsyandexproject.databinding.FragmentSummaryBinding
 
-class ChartFragment: Fragment() {
+class NewsFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -17,10 +17,10 @@ class ChartFragment: Fragment() {
         savedInstanceState: Bundle?
     ): View {
 
-        val binding: FragmentChartBinding =
+        val binding: FragmentSummaryBinding =
             DataBindingUtil.inflate(
                 inflater,
-                R.layout.fragment_chart,
+                R.layout.fragment_summary,
                 container,
                 false
             )

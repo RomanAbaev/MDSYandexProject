@@ -98,7 +98,7 @@ class SearchViewModel : ViewModel() {
     var job: Job? = null
 
     fun submitSearch(query: String) {
-        job?.cancel()
+        cancelJob()
         job = viewModelScope.launch(Dispatchers.IO) {
             if (!requestQ.containsKey(query)) {
                 requestQ[query] = 0

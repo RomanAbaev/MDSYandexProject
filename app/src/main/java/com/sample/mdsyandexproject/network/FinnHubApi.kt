@@ -33,6 +33,15 @@ interface FinnHubService {
         @Query("symbol") ticker: String,
         @Query("token") token: String = "c0t7r1748v6r4maem760"
     ): Deferred<CompanyProfile2>
+
+    @GET("stock/candle")
+    fun loadCandleInfo(
+        @Query("symbol") ticker: String,
+        @Query("resolution") resolution: String = "1",
+        @Query("from") from: Long,
+        @Query("to") to: Long,
+        @Query("token") token: String = "c0t7r1748v6r4maem760"
+    ): Deferred<Candles>
 }
 
 private val moshi = Moshi.Builder()

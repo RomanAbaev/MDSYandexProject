@@ -62,6 +62,16 @@ data class Quote(
     val errorCode: String? = null
 )
 
+data class Candles(
+    @Json(name = "o") val openPrices: List<Float>,
+    @Json(name = "h") val highPrices: List<Float>,
+    @Json(name = "l") val lowPrices: List<Float>,
+    @Json(name = "c") val closePrices: List<Float>,
+    @Json(name = "v") val volume: List<Float>,
+    @Json(name = "t") val timestamp: List<Long>,
+    @Json(name = "s") val status: String
+)
+
 data class DataJson(
     val p: Float?,
     val s: String?,

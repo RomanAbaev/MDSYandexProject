@@ -1,8 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
+        <variable
+            name="stockItem"
+            type="com.sample.mdsyandexproject.domain.StockItem" />
+
+        <variable
+            name="viewModel"
+            type="com.sample.mdsyandexproject.stockitem.StockItemViewModel" />
+
+        <variable
+            name="chartBtnListener"
+            type="com.sample.mdsyandexproject.stockitem.pager_screens.ChartBtnListener" />
 
     </data>
 
@@ -11,13 +24,104 @@
         android:layout_height="match_parent">
 
         <TextView
+            android:id="@+id/stock_current_price"
+            style="@style/H1_text_style"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Chart fragment"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginTop="48dp"
+            app:currentPrice="@{stockItem}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="$72.16" />
+
+        <TextView
+            android:id="@+id/day_delta"
+            style="@style/body_green"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:dayDeltaPrice="@{stockItem}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/stock_current_price"
+            tools:text="+$ 0.12 (1,15%)" />
+
+        <ProgressBar
+            android:id="@+id/chart_pb"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@android:color/transparent"
+            android:tooltipText="@string/chart_loading"
+            app:layout_constraintBottom_toTopOf="@id/chart_button_group"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/day_delta" />
+
+        <com.github.mikephil.charting.charts.CandleStickChart
+            android:id="@+id/chart"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="10dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/chart_button_group"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/day_delta" />
+
+        <LinearLayout
+            android:id="@+id/chart_button_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="40dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <TextView
+                android:id="@+id/day"
+                style="@style/ChartBtnStyle"
+                android:background="@drawable/chart_btn_shape_unselected"
+                android:onClick="@{() -> chartBtnListener.onClick(0)}"
+                android:text="@string/one_day_candles" />
+
+            <TextView
+                android:id="@+id/week"
+                style="@style/ChartBtnStyle"
+                android:background="@drawable/chart_btn_shape_unselected"
+                android:onClick="@{() -> chartBtnListener.onClick(1)}"
+                android:text="@string/one_week_candles" />
+
+            <TextView
+                android:id="@+id/month"
+                style="@style/ChartBtnStyle"
+                android:background="@drawable/chart_btn_shape_unselected"
+                android:onClick="@{() -> chartBtnListener.onClick(2)}"
+                android:text="@string/one_month_candles" />
+
+            <TextView
+                android:id="@+id/six_month"
+                style="@style/ChartBtnStyle"
+                android:background="@drawable/chart_btn_shape_unselected"
+                android:onClick="@{() -> chartBtnListener.onClick(3)}"
+                android:text="@string/six_month_candles" />
+
+            <TextView
+                android:id="@+id/year"
+                style="@style/ChartBtnStyle"
+                android:background="@drawable/chart_btn_shape_unselected"
+                android:onClick="@{() -> chartBtnListener.onClick(4)}"
+                android:text="@string/one_year_candles" />
+
+            <TextView
+                android:id="@+id/all"
+                style="@style/ChartBtnStyle"
+                android:background="@drawable/chart_btn_shape_unselected"
+                android:onClick="@{() -> chartBtnListener.onClick(5)}"
+                android:text="@string/all_candles" />
+
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

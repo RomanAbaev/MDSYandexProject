@@ -18,4 +18,11 @@
     <string name="connected">Your internet connection is fine</string>
     <string name="lost_connection">Your internet connection is unavailable</string>
     <string name="try_again">Try again</string>
+    <string name="one_day_candles">D</string>
+    <string name="one_week_candles">W</string>
+    <string name="one_month_candles">M</string>
+    <string name="six_month_candles">6M</string>
+    <string name="one_year_candles">1Y</string>
+    <string name="all_candles">ALL</string>
+    <string name="chart_loading">Chart is loading, please wait</string>
 </resources>

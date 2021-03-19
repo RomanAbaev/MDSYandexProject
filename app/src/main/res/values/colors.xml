@@ -15,4 +15,6 @@
 
     <color name="positive_day_delta">#24B25D</color>
     <color name="negative_day_delta">#B22424</color>
+
+    <color name="chart_btn_background">#F0F4F7</color>
 </resources>

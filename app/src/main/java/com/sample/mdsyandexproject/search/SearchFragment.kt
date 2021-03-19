@@ -151,7 +151,6 @@ class SearchFragment : Fragment() {
             {
                 when (it.first) {
                     true -> {
-                        // show snackbar with message and try button with callback = loadNextChunks()
                         Snackbar.make(
                             binding.root,
                             it.second,

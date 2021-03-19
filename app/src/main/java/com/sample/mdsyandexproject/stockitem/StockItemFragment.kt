@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.tabs.TabLayoutMediator
 import com.sample.mdsyandexproject.R
@@ -21,6 +22,8 @@ class StockItemFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
 
+        val stockItemViewModel by activityViewModels<StockItemViewModel>()
+
         val binding: FragmentStockItemBinding =
             DataBindingUtil.inflate(
                 inflater,
@@ -30,7 +33,10 @@ class StockItemFragment : Fragment() {
             )
 
         val arguments = arguments?.let { fromBundle(it) }
-        binding.stockItem = arguments?.stockItem
+        arguments?.let {
+            binding.stockItem = it.stockItem
+            stockItemViewModel.stockItem = requireNotNull(it.stockItem)
+        }
 
         binding.leftDrawable.setOnClickListener {
             findNavController().navigate(R.id.action_stockItemFragment_to_stockListFragment)
