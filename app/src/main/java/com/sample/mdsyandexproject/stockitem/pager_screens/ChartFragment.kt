@@ -94,19 +94,21 @@ class ChartFragment : Fragment() {
         stockItemViewModel.onCandlePeriodClick(ALL)
 
         stockItemViewModel.candlesData.observe(viewLifecycleOwner, {
-            val cds = CandleDataSet(it, "")
-            cds.color = Color.rgb(80, 80, 80)
-            cds.shadowColor = Color.DKGRAY
-            cds.shadowWidth = 0.7f
-            cds.decreasingColor = Color.RED
-            cds.decreasingPaintStyle = Paint.Style.FILL
-            cds.increasingColor = Color.rgb(122, 242, 84)
-            cds.increasingPaintStyle = Paint.Style.STROKE
-            cds.neutralColor = Color.BLUE
-            cds.valueTextColor = Color.RED
-            val cd = CandleData(cds)
-            binding.chart.data = cd
-            binding.chart.invalidate()
+            if (it.isNotEmpty()) {
+                val cds = CandleDataSet(it, "")
+                cds.color = Color.rgb(80, 80, 80)
+                cds.shadowColor = Color.DKGRAY
+                cds.shadowWidth = 0.7f
+                cds.decreasingColor = Color.RED
+                cds.decreasingPaintStyle = Paint.Style.FILL
+                cds.increasingColor = Color.rgb(122, 242, 84)
+                cds.increasingPaintStyle = Paint.Style.STROKE
+                cds.neutralColor = Color.BLUE
+                cds.valueTextColor = Color.RED
+                val cd = CandleData(cds)
+                binding.chart.data = cd
+                binding.chart.invalidate()
+            }
         })
 
         stockItemViewModel.loadCandleInfoException.observe(viewLifecycleOwner,
@@ -119,11 +121,7 @@ class ChartFragment : Fragment() {
                             Snackbar.LENGTH_INDEFINITE
                         ).setAction(getString(R.string.try_again)) {
                             stockItemViewModel.onTriedAgainLoadCandlesBtnClick()
-                            stockItemViewModel.loadCandlesInfo(
-                                stockItemViewModel.stockItem.ticker,
-                                from = 6716421,
-                                to = DateTime.now().millis
-                            )
+                            stockItemViewModel.onCandlePeriodClick(checkedPeriod)
                         }.show()
                     }
                 }
