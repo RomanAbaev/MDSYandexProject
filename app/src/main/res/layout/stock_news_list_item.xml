@@ -68,7 +68,6 @@
             app:layout_constraintTop_toBottomOf="@id/summary"
             tools:text="32CARS.ru" />
 
-        <!--  TODO make normal date   -->
         <TextView
             android:id="@+id/datetime"
             style="@style/body_news"

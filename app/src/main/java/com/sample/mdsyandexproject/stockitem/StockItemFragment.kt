@@ -12,6 +12,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.sample.mdsyandexproject.R
 import com.sample.mdsyandexproject.databinding.FragmentStockItemBinding
 import com.sample.mdsyandexproject.stockitem.StockItemFragmentArgs.fromBundle
+import com.sample.mdsyandexproject.stocklist.FavBtnListener
 
 
 class StockItemFragment : Fragment() {
@@ -52,6 +53,10 @@ class StockItemFragment : Fragment() {
                 else -> throw IllegalArgumentException("Illegal tab number")
             }
         }.attach()
+
+        binding.favBtnListener = FavBtnListener {
+            stockItemViewModel.onFavouriteButtonClicked(it)
+        }
 
         return binding.root
     }

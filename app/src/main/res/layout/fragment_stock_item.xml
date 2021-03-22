@@ -25,8 +25,6 @@
             android:fitsSystemWindows="true"
             app:elevation="5dp">
 
-            <!-- TODO: как-то надо убрать подчеркивание текста  -->
-
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">

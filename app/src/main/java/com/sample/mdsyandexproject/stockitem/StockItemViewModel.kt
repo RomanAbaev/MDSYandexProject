@@ -33,6 +33,13 @@ class StockItemViewModel : ViewModel() {
 
     private var charLoadingJob: Job? = null
 
+    fun onFavouriteButtonClicked(stockItem: StockItem) {
+        stockItem.isFavourite = !stockItem.isFavourite
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.updateFavouriteStock(stockItem)
+        }
+    }
+
     fun loadCandlesInfo(ticker: String, from: Long, to: Long) {
 
         charLoadingJob?.cancel()
