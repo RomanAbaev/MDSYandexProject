@@ -20,7 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:background="@drawable/stock_list_item_shape_dark">
+        android:background="@drawable/rv_item_shape_dark">
 
         <ImageView
             android:id="@+id/stock_logo"
@@ -31,6 +31,7 @@
             android:layout_marginBottom="@dimen/stock_logo_margin"
             android:contentDescription="@string/logo_image_for_stock"
             app:imageUrl="@{stockItem.logoUrl}"
+            tools:src = "@drawable/ic_yandex_stab"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

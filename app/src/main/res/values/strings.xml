@@ -25,4 +25,5 @@
     <string name="one_year_candles">1Y</string>
     <string name="all_candles">ALL</string>
     <string name="chart_loading">Chart is loading, please wait</string>
+    <string name="image_for_news_logo">Image for news logo</string>
 </resources>

@@ -22,7 +22,6 @@ import com.sample.mdsyandexproject.stockitem.StockItemViewModel.Companion.MONTH
 import com.sample.mdsyandexproject.stockitem.StockItemViewModel.Companion.ONE_YEAR
 import com.sample.mdsyandexproject.stockitem.StockItemViewModel.Companion.SIX_MONTH
 import com.sample.mdsyandexproject.stockitem.StockItemViewModel.Companion.WEEK
-import org.joda.time.DateTime
 
 class ChartFragment : Fragment() {
 
@@ -137,6 +136,3 @@ class ChartFragment : Fragment() {
     }
 }
 
-class ChartBtnListener(val chartBtnListener: (period: Int) -> Unit) {
-    fun onClick(period: Int) = chartBtnListener(period)
-}

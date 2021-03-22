@@ -2,6 +2,7 @@ package com.sample.mdsyandexproject.network
 
 import com.sample.mdsyandexproject.database.Prices
 import com.sample.mdsyandexproject.database.SPIndices
+import com.sample.mdsyandexproject.domain.NewsItem
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.Json
 import com.squareup.moshi.ToJson
@@ -72,6 +73,18 @@ data class Candles(
     @Json(name = "s") val status: String
 )
 
+data class NewsDto(
+    @Json(name = "category") val category: String,
+    @Json(name = "datetime") val datetime: Long,
+    @Json(name = "headline") val headline: String,
+    @Json(name = "id") val id: Long,
+    @Json(name = "image") val newsImage: String,
+    @Json(name = "related") val ticker: String,
+    @Json(name = "source") val source: String,
+    @Json(name = "summary") val summary: String,
+    @Json(name = "url") val url: String
+)
+
 data class DataJson(
     val p: Float?,
     val s: String?,
@@ -139,3 +152,16 @@ fun IndicesList.asDatabaseModel(): List<SPIndices> {
     }
 }
 
+fun List<NewsDto>.asDomainModel(): List<NewsItem> {
+    return map {
+        NewsItem(
+            id = it.id,
+            logo = it.newsImage,
+            headline = it.headline,
+            source = it.source,
+            datetime = it.datetime,
+            url = it.url,
+            summary = it.summary
+        )
+    }
+}

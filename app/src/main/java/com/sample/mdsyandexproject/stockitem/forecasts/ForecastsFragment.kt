@@ -1,4 +1,4 @@
-package com.sample.mdsyandexproject.stockitem.pager_screens
+package com.sample.mdsyandexproject.stockitem.forecasts
 
 import android.os.Bundle
 import android.view.LayoutInflater

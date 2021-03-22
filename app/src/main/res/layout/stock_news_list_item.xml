@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="newsItem"
+            type="com.sample.mdsyandexproject.domain.NewsItem" />
+
+        <variable
+            name="newsItemListener"
+            type="com.sample.mdsyandexproject.stockitem.news.NewsItemListener" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp">
+
+        <ImageView
+            android:id="@+id/logo"
+            android:layout_width="@dimen/image_width"
+            android:layout_height="@dimen/image_height"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="@dimen/list_horizontal_margin"
+            android:contentDescription="@string/image_for_news_logo"
+            app:imageUrl="@{newsItem.logo}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/ic_yandex_stab" />
+
+        <TextView
+            android:id="@+id/headline"
+            style="@style/H2_text_style"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/list_horizontal_margin"
+            android:layout_marginEnd="@dimen/list_horizontal_margin"
+            android:layout_marginTop="8dp"
+            android:text="@{newsItem.headline}"
+            app:layout_constraintEnd_toStartOf="@id/logo"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="«Яндекс» показал зимние испытания беспилотников" />
+
+        <TextView
+            android:id="@+id/summary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:text="@{newsItem.summary}"
+            app:layout_constraintTop_toBottomOf="@id/headline"
+            />
+
+        <TextView
+            android:id="@+id/source"
+            style="@style/body_news"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@{newsItem.source}"
+            app:layout_constraintStart_toStartOf="@id/headline"
+            app:layout_constraintTop_toBottomOf="@id/summary"
+            tools:text="32CARS.ru" />
+
+        <!--  TODO make normal date   -->
+        <TextView
+            android:id="@+id/datetime"
+            style="@style/body_news"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            app:unixDate="@{newsItem.datetime}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@id/source"
+            app:layout_constraintTop_toBottomOf="@id/source"
+            tools:text="18.03.2020 20:04" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

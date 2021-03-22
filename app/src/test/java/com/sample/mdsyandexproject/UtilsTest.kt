@@ -2,6 +2,7 @@ package com.sample.mdsyandexproject
 
 import com.sample.mdsyandexproject.domain.StockItem
 import com.sample.mdsyandexproject.utils.EST
+import com.sample.mdsyandexproject.utils.convertDateToNewsFormat
 import com.sample.mdsyandexproject.utils.isCurrentPriceValid
 import com.sample.mdsyandexproject.utils.isPreviousClosePriceValid
 import org.hamcrest.core.Is.`is`
@@ -62,7 +63,7 @@ class UtilsTest {
     }
 
     @Test
-    fun isEodValidTest() {
+    fun isPreviousClosePriceValidTest() {
         val monday = DateTime.now().withDayOfWeek(1)
         val tuesday = DateTime.now().withDayOfWeek(2)
         val wednesday = DateTime.now().withDayOfWeek(3)
@@ -184,5 +185,13 @@ class UtilsTest {
         assertThat(sunday_monday, `is`(false))
         assertThat(saturday_friday, `is`(true))
         assertThat(friday_null, `is`(false))
+    }
+
+    @Test
+    fun convertDateToNewsFormatTest() {
+        val newsDateFormat =
+            convertDateToNewsFormat(DateTime("2004-04-01").millis)
+
+        assertThat(newsDateFormat, `is`("2004-04-01"))
     }
 }

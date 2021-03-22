@@ -16,13 +16,13 @@ import com.sample.mdsyandexproject.stockitem.StockItemFragmentArgs.fromBundle
 
 class StockItemFragment : Fragment() {
 
+    private val stockItemViewModel by activityViewModels<StockItemViewModel>()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
-        val stockItemViewModel by activityViewModels<StockItemViewModel>()
 
         val binding: FragmentStockItemBinding =
             DataBindingUtil.inflate(
@@ -46,13 +46,18 @@ class StockItemFragment : Fragment() {
         TabLayoutMediator(binding.tabs, binding.viewPager) { tab, pos ->
             tab.text = when (pos) {
                 0 -> "Chart"
-                1 -> "Summary"
-                2 -> "News"
+                1 -> "News"
+                2 -> "Summary"
                 3 -> "Forecasts"
                 else -> throw IllegalArgumentException("Illegal tab number")
             }
         }.attach()
 
         return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        stockItemViewModel.resetNewsInformation()
     }
 }

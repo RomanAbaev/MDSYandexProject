@@ -13,6 +13,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.sample.mdsyandexproject.domain.StockItem
 import com.sample.mdsyandexproject.utils.isCurrentPriceValid
 import com.sample.mdsyandexproject.utils.isPreviousClosePriceValid
+import org.joda.time.DateTime
 import java.text.DecimalFormat
 import java.util.*
 import kotlin.math.absoluteValue
@@ -174,4 +175,9 @@ fun TextView.dayDeltaPrice(stockItem: StockItem) {
     }
 }
 
+@BindingAdapter("unixDate")
+fun TextView.unixDate(datetime: Long) {
+    val dateTime = DateTime(datetime.times(1000L))
+    this.text = dateTime.toString("dd.MM.YYYY HH:mm")
+}
 

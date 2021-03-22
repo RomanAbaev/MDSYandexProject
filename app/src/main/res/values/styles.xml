@@ -45,6 +45,10 @@
         <item name="android:textColor">#24B25D</item>
     </style>
 
+    <style name="body_news" parent="H3_text_style">
+        <item name="android:textStyle">italic</item>
+    </style>
+
     <style name="ChartBtnStyle">
         <item name="android:textAppearance">@style/body</item>
         <item name="android:textStyle">bold</item>

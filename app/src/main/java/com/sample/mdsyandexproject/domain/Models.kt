@@ -35,6 +35,16 @@ data class StockItem(
         }
 }
 
+data class NewsItem(
+    val id: Long,
+    val logo: String,
+    val headline: String,
+    val source: String,
+    val datetime: Long,
+    val url: String,
+    val summary: String
+)
+
 fun StockItem.asFavouriteDatabaseModel(): FavouriteDatabaseModel {
     return FavouriteDatabaseModel(
         ticker = this.ticker,

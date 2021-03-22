@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.mikephil.charting.data.CandleEntry
+import com.sample.mdsyandexproject.domain.NewsItem
 import com.sample.mdsyandexproject.domain.StockItem
 import com.sample.mdsyandexproject.repository.Repository
 import kotlinx.coroutines.Dispatchers
@@ -18,10 +19,15 @@ class StockItemViewModel : ViewModel() {
 
     lateinit var stockItem: StockItem
 
+    val news = MutableLiveData<MutableList<NewsItem>>(mutableListOf())
+    var loading = MutableLiveData(false)
+
     var chartLoading = MutableLiveData(false)
     val candlesData = MutableLiveData<List<CandleEntry>>()
     val loadCandleInfoException: LiveData<Pair<Boolean, String>> =
         repository.loadCandleInfoException
+    val loadNewsException: LiveData<Pair<Boolean, String>> =
+        repository.loadNewsException
 
     val checkedPeriod = MutableLiveData<Int>()
 
@@ -105,6 +111,47 @@ class StockItemViewModel : ViewModel() {
 
     fun onTriedAgainLoadCandlesBtnClick() {
         repository.loadCandleInfoException.value = Pair(false, "")
+    }
+
+    // assume that's one day = one page
+    private var newsPage = 0
+
+    fun loadNews() {
+        viewModelScope.launch(Dispatchers.Unconfined) {
+            var loadedNews: List<NewsItem>?
+            val currentListNews: MutableList<NewsItem>? = this@StockItemViewModel.news.value
+            val newNewsPage: MutableList<NewsItem> = mutableListOf()
+            if (currentListNews != null && currentListNews.isNotEmpty()) loading.postValue(true)
+            do {
+                val fromAndToDate = getFromAndToDateForNews()
+                loadedNews = repository.loadNews(
+                    stockItem.ticker,
+                    fromAndToDate,
+                    fromAndToDate
+                )
+                if (loadedNews != null) {
+                    newsPage++
+                    newNewsPage.addAll(loadedNews)
+                }
+            } while (loadedNews != null && newNewsPage.size <= 12 )
+            currentListNews?.let {
+                currentListNews.addAll(newNewsPage)
+                this@StockItemViewModel.news.postValue(it)
+            }
+            loading.postValue(false)
+        }
+    }
+
+    private fun getFromAndToDateForNews(): String =
+        DateTime.now().minusDays(newsPage).toLocalDate().toString()
+
+    fun onTriedAgainLoadNewsBtnClick() {
+        repository.loadNewsException.value = Pair(false, "")
+    }
+
+    fun resetNewsInformation() {
+        this@StockItemViewModel.news.value = mutableListOf()
+        newsPage = 0;
     }
 
     companion object {

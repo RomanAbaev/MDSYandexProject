@@ -42,6 +42,18 @@ interface FinnHubService {
         @Query("to") to: Long,
         @Query("token") token: String = "c0t7r1748v6r4maem760"
     ): Deferred<Candles>
+
+    /**
+     * @param from date YYYY-MM-DD
+     * @param to date YYYY-MM-DD
+     */
+    @GET("company-news")
+    fun loadNews(
+        @Query("symbol") ticker: String,
+        @Query("from") from: String,
+        @Query("to") to: String,
+        @Query("token") token: String = "c0t7r1748v6r4maem760"
+    ): Deferred<List<NewsDto>>
 }
 
 private val moshi = Moshi.Builder()

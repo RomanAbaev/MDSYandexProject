@@ -39,6 +39,11 @@ fun isCompanyInfoValid(stockItem: StockItem): Boolean {
     return stockItem.logoUrl != null
 }
 
+fun convertDateToNewsFormat(date: Long): String {
+    val time = DateTime(date).toLocalDate()
+    return time.toString()
+}
+
 fun parseISO8601Date(date: String): Long {
     val parser = ISODateTimeFormat.dateTimeParser().withZone(EST)
     return parser.parseDateTime(date).millis

@@ -1,4 +1,4 @@
-package com.sample.mdsyandexproject.stockitem.pager_screens
+package com.sample.mdsyandexproject.stockitem.summary
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,7 +9,7 @@ import androidx.fragment.app.Fragment
 import com.sample.mdsyandexproject.R
 import com.sample.mdsyandexproject.databinding.FragmentSummaryBinding
 
-class NewsFragment : Fragment() {
+class SummaryFragment: Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,

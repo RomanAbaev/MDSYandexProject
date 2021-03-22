@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.sample.mdsyandexproject.database.*
+import com.sample.mdsyandexproject.domain.NewsItem
 import com.sample.mdsyandexproject.domain.StockItem
 import com.sample.mdsyandexproject.domain.asDatabaseModel
 import com.sample.mdsyandexproject.domain.asFavouriteDatabaseModel
@@ -33,6 +34,7 @@ class RepositoryImpl {
     val loadNextChunksException = MutableLiveData<Pair<Boolean, String>>()
     val submitSearchException = MutableLiveData<Pair<Boolean, String>>()
     val loadCandleInfoException = MutableLiveData<Pair<Boolean, String>>()
+    val loadNewsException = MutableLiveData<Pair<Boolean, String>>()
 
     private var moshi: Moshi = Moshi.Builder()
         .add(DataJsonAdapter())
@@ -323,6 +325,22 @@ class RepositoryImpl {
         } catch (ex: Exception) {
             ex.printStackTrace()
             loadCandleInfoException.postValue(Pair(true, ex.message.toString()))
+            null
+        }
+    }
+
+    suspend fun loadNews(ticker: String, from: String, to: String)
+            : List<NewsItem>? {
+        // TODO сделать обработку при отстутствии интернета
+        return try {
+            finnHubApi.loadNews(
+                ticker,
+                from,
+                to
+            ).await().asDomainModel()
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            loadNewsException.postValue(Pair(true, ex.message.toString()))
             null
         }
     }

@@ -3,9 +3,9 @@ package com.sample.mdsyandexproject.stockitem
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.sample.mdsyandexproject.stockitem.pager_screens.ChartFragment
-import com.sample.mdsyandexproject.stockitem.pager_screens.ForecastsFragment
-import com.sample.mdsyandexproject.stockitem.pager_screens.NewsFragment
-import com.sample.mdsyandexproject.stockitem.pager_screens.SummaryFragment
+import com.sample.mdsyandexproject.stockitem.forecasts.ForecastsFragment
+import com.sample.mdsyandexproject.stockitem.news.NewsFragment
+import com.sample.mdsyandexproject.stockitem.summary.SummaryFragment
 
 class StockPagerAdapter(fragment: StockItemFragment) : FragmentStateAdapter(fragment) {
     override fun getItemCount(): Int = 4
