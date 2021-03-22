@@ -26,4 +26,13 @@
     <string name="all_candles">ALL</string>
     <string name="chart_loading">Chart is loading, please wait</string>
     <string name="image_for_news_logo">Image for news logo</string>
+    <string name="company_name">Name:</string>
+    <string name="country">HQ country:</string>
+    <string name="currency">Currency:</string>
+    <string name="exchange">Exchange:</string>
+    <string name="ipo">IPO date:</string>
+    <string name="market_capitalization">Market capitalization:</string>
+    <string name="phone">Phone:</string>
+    <string name="weburl">Weburl:</string>
+    <string name="url_style"><u>%1$s</u></string>
 </resources>

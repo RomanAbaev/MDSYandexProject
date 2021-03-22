@@ -302,6 +302,12 @@ class RepositoryImpl {
                     currentPriceDate = DateTime.now().millis,
                     previousClosePrice = q?.previousClosePrice,
                     previousClosePriceDate = q?.timestamp?.times(1000L),
+                    country = cp.country,
+                    exchange = cp.exchange,
+                    ipo = cp.ipo,
+                    marketCapitalization = cp.marketCapitalization,
+                    phone = cp.phone,
+                    weburl = cp.weburl,
                     errorMessage = q?.errorMessage
                 )
             } else null

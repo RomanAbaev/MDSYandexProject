@@ -6,9 +6,6 @@ import com.sample.mdsyandexproject.database.DatabaseStockItem
 import com.sample.mdsyandexproject.database.FavouriteDatabaseModel
 import java.io.Serializable
 
-
-// TODO: удалить неиспользуемые поля eod и т.д.
-
 data class StockItem(
     val ticker: String,
     val companyName: String,
@@ -16,16 +13,17 @@ data class StockItem(
     var _isFavourite: Boolean = false,
     var currentPrice: Float? = null,
     var currentPriceDate: Long? = null,
-    val previousEodDate: Long? = null,
-    val previousEod: Float? = null,
-    val eod: Float? = null,
-    val eodDate: Long? = null,
+    val previousClosePrice: Float? = null,
+    val previousClosePriceDate: Long? = null,
     val currency: String? = null,
-    val dayDelta: Double? = null,
+    val country: String? = null,
+    val exchange: String? = null,
+    val ipo: String? = null,
+    val marketCapitalization: String? = null,
+    val phone: String? = null,
+    val weburl: String? = null,
     var error: String? = null,
     var errorMessage: String? = null,
-    val previousClosePrice: Float? = null,
-    val previousClosePriceDate: Long? = null
 ) : BaseObservable(), Serializable {
     var isFavourite: Boolean
         @Bindable get() = _isFavourite
@@ -62,6 +60,12 @@ fun StockItem.asDatabaseModel(): DatabaseStockItem {
         currentPriceDate = this.currentPriceDate,
         previousClosePriceDate = this.previousClosePriceDate,
         previousClosePrice = this.previousClosePrice,
-        currency = this.currency
+        currency = this.currency,
+        country = this.country,
+        exchange = this.exchange,
+        ipo = this.ipo,
+        marketCapitalization = this.marketCapitalization,
+        phone = this.phone,
+        weburl = this.weburl,
     )
 }

@@ -8,14 +8,15 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.ToJson
 
 data class CompanyProfile2(
-    val country: String,
+    val ticker: String,
+    val name: String,
     val currency: String,
+    val country: String,
     val exchange: String,
     val ipo: String,
     val marketCapitalization: String,
-    val name: String,
+    val shareOutstanding: String,
     val phone: String,
-    val ticker: String,
     val weburl: String,
     val logo: String,
     @Json(name = "finnhubIndustry") val finnHubIndustry: String,

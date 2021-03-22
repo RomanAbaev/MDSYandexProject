@@ -180,4 +180,3 @@ fun TextView.unixDate(datetime: Long) {
     val dateTime = DateTime(datetime.times(1000L))
     this.text = dateTime.toString("dd.MM.YYYY HH:mm")
 }
-
