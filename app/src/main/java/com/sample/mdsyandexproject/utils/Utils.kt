@@ -6,6 +6,7 @@ import org.joda.time.DateTimeZone
 import org.joda.time.Days
 import org.joda.time.LocalDate
 import org.joda.time.format.ISODateTimeFormat
+import retrofit2.HttpException
 
 val EST = DateTimeZone.forID("America/New_York")
 
@@ -42,6 +43,14 @@ fun isCompanyInfoValid(stockItem: StockItem): Boolean {
 fun convertDateToNewsFormat(date: Long): String {
     val time = DateTime(date).toLocalDate()
     return time.toString()
+}
+
+fun getReadableNetworkMessage(ex: HttpException): String {
+    return when (ex.code()) {
+        403 -> "Permission denied"
+        429 -> "Your limit exceeded"
+        else -> "Something goes wrong"
+    }
 }
 
 fun parseISO8601Date(date: String): Long {

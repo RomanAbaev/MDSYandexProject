@@ -9,6 +9,7 @@ import com.sample.mdsyandexproject.domain.StockItem
 import com.sample.mdsyandexproject.domain.asDatabaseModel
 import com.sample.mdsyandexproject.domain.asFavouriteDatabaseModel
 import com.sample.mdsyandexproject.network.*
+import com.sample.mdsyandexproject.utils.getReadableNetworkMessage
 import com.sample.mdsyandexproject.utils.isCompanyInfoValid
 import com.squareup.moshi.Moshi
 import kotlinx.coroutines.Dispatchers
@@ -111,9 +112,12 @@ class RepositoryImpl {
                     loadCompanyInfoAndQuote(spIndices)
                 }
             }
+        } catch (ex: HttpException) {
+            ex.printStackTrace()
+            loadNextChunksException.postValue(Pair(true, getReadableNetworkMessage(ex)))
         } catch (ex: Exception) {
             ex.printStackTrace()
-            loadNextChunksException.postValue(Pair(true, ex.message.toString()))
+            loadNextChunksException.postValue(Pair(true, "Something goes wrong"))
         }
     }
 
@@ -260,12 +264,14 @@ class RepositoryImpl {
         val stockItemListFromDb: MutableList<StockItem> =
             database.search("%$query%").asDomainModel().toMutableList()
         var stockItemListNetwork: SearchResultResponse? = null
-        // TODO try again button
         try {
             stockItemListNetwork = finnHubApi.submitSearch(query).await()
+        } catch (ex: HttpException) {
+            ex.printStackTrace()
+            submitSearchException.postValue(Pair(true, getReadableNetworkMessage(ex)))
         } catch (ex: Exception) {
             ex.printStackTrace()
-            submitSearchException.postValue(Pair(true, ex.message.toString()))
+            submitSearchException.postValue(Pair(true, "Something goes wrong"))
         }
 
         val resultListFromNetwork: MutableList<StockItem>? = stockItemListNetwork?.result?.map {
@@ -328,9 +334,13 @@ class RepositoryImpl {
                 from = from,
                 to = to
             ).await()
+        } catch (ex: HttpException) {
+            ex.printStackTrace()
+            loadCandleInfoException.postValue(Pair(true, getReadableNetworkMessage(ex)))
+            null
         } catch (ex: Exception) {
             ex.printStackTrace()
-            loadCandleInfoException.postValue(Pair(true, ex.message.toString()))
+            loadCandleInfoException.postValue(Pair(true, "Something goes wrong"))
             null
         }
     }
@@ -344,9 +354,13 @@ class RepositoryImpl {
                 from,
                 to
             ).await().asDomainModel()
+        } catch (ex: HttpException) {
+            ex.printStackTrace()
+            loadNewsException.postValue(Pair(true, getReadableNetworkMessage(ex)))
+            null
         } catch (ex: Exception) {
             ex.printStackTrace()
-            loadNewsException.postValue(Pair(true, ex.message.toString()))
+            loadNewsException.postValue(Pair(true, "Something goes wrong"))
             null
         }
     }
