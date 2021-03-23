@@ -5,7 +5,8 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.Days
 import org.joda.time.LocalDate
-import org.joda.time.format.ISODateTimeFormat
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
 import retrofit2.HttpException
 
 val EST = DateTimeZone.forID("America/New_York")
@@ -53,7 +54,8 @@ fun getReadableNetworkMessage(ex: HttpException): String {
     }
 }
 
-fun parseISO8601Date(date: String): Long {
-    val parser = ISODateTimeFormat.dateTimeParser().withZone(EST)
-    return parser.parseDateTime(date).millis
+fun parseStringDate(date: String): Long {
+    val formatter: DateTimeFormatter = DateTimeFormat.forPattern("YYYY-MM-dd")
+    val dateTime = formatter.parseDateTime(date)
+    return dateTime.millis
 }

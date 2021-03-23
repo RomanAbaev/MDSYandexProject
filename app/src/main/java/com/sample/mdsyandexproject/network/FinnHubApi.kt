@@ -54,6 +54,12 @@ interface FinnHubService {
         @Query("to") to: String,
         @Query("token") token: String = "c0t7r1748v6r4maem760"
     ): Deferred<List<NewsDto>>
+
+    @GET("stock/recommendation?")
+    fun loadRecommendation(
+        @Query("symbol") ticker: String,
+        @Query("token") token: String = "c0t7r1748v6r4maem760"
+    ) : Deferred<List<RecommendationDto>>
 }
 
 private val moshi = Moshi.Builder()

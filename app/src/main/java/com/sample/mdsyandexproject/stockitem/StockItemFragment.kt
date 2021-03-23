@@ -49,7 +49,7 @@ class StockItemFragment : Fragment() {
                 0 -> "Chart"
                 1 -> "News"
                 2 -> "Summary"
-                3 -> "Forecasts"
+                3 -> "Recommendations"
                 else -> throw IllegalArgumentException("Illegal tab number")
             }
         }.attach()

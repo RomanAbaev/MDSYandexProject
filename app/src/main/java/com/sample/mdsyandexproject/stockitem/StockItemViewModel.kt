@@ -1,11 +1,9 @@
 package com.sample.mdsyandexproject.stockitem
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.github.mikephil.charting.data.CandleEntry
 import com.sample.mdsyandexproject.domain.NewsItem
+import com.sample.mdsyandexproject.domain.RecommendationItem
 import com.sample.mdsyandexproject.domain.StockItem
 import com.sample.mdsyandexproject.repository.Repository
 import kotlinx.coroutines.Dispatchers
@@ -19,6 +17,7 @@ class StockItemViewModel : ViewModel() {
 
     lateinit var stockItem: StockItem
 
+    val recommendation = MutableLiveData<List<RecommendationItem>>()
     val news = MutableLiveData<MutableList<NewsItem>>(mutableListOf())
     var loading = MutableLiveData(false)
 
@@ -41,7 +40,6 @@ class StockItemViewModel : ViewModel() {
     }
 
     fun loadCandlesInfo(ticker: String, from: Long, to: Long) {
-
         charLoadingJob?.cancel()
         charLoadingJob = viewModelScope.launch(Dispatchers.IO) {
             chartLoading.postValue(true)
@@ -140,7 +138,7 @@ class StockItemViewModel : ViewModel() {
                     newsPage++
                     newNewsPage.addAll(loadedNews)
                 }
-            } while (loadedNews != null && newNewsPage.size <= 12 )
+            } while (loadedNews != null && newNewsPage.size <= 12)
             currentListNews?.let {
                 currentListNews.addAll(newNewsPage)
                 this@StockItemViewModel.news.postValue(it)
@@ -159,6 +157,15 @@ class StockItemViewModel : ViewModel() {
     fun resetNewsInformation() {
         this@StockItemViewModel.news.value = mutableListOf()
         newsPage = 0;
+    }
+
+    fun getRecommendations(ticker: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val data = repository.updateRecommendation(stockItem.ticker)
+            data?.let {
+                recommendation.postValue(it)
+            }
+        }
     }
 
     companion object {

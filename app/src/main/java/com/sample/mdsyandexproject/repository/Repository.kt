@@ -4,10 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.sample.mdsyandexproject.database.*
-import com.sample.mdsyandexproject.domain.NewsItem
-import com.sample.mdsyandexproject.domain.StockItem
-import com.sample.mdsyandexproject.domain.asDatabaseModel
-import com.sample.mdsyandexproject.domain.asFavouriteDatabaseModel
+import com.sample.mdsyandexproject.domain.*
 import com.sample.mdsyandexproject.network.*
 import com.sample.mdsyandexproject.utils.getReadableNetworkMessage
 import com.sample.mdsyandexproject.utils.isCompanyInfoValid
@@ -36,6 +33,7 @@ class RepositoryImpl {
     val submitSearchException = MutableLiveData<Pair<Boolean, String>>()
     val loadCandleInfoException = MutableLiveData<Pair<Boolean, String>>()
     val loadNewsException = MutableLiveData<Pair<Boolean, String>>()
+    val loadRecommendationsException = MutableLiveData<Pair<Boolean, String>>()
 
     private var moshi: Moshi = Moshi.Builder()
         .add(DataJsonAdapter())
@@ -361,6 +359,20 @@ class RepositoryImpl {
         } catch (ex: Exception) {
             ex.printStackTrace()
             loadNewsException.postValue(Pair(true, "Something goes wrong"))
+            null
+        }
+    }
+
+    suspend fun updateRecommendation(ticker: String): List<RecommendationItem>? {
+        return try {
+            finnHubApi.loadRecommendation(ticker = ticker).await().asDomainModel()
+        } catch (ex: HttpException) {
+            ex.printStackTrace()
+            loadRecommendationsException.postValue(Pair(true, getReadableNetworkMessage(ex)))
+            null
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            loadRecommendationsException.postValue(Pair(true, "Something goes wrong"))
             null
         }
     }

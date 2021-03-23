@@ -43,6 +43,16 @@ data class NewsItem(
     val summary: String
 )
 
+data class RecommendationItem(
+    val ticker: String,
+    val buy: Int,
+    val strongBuy: Int,
+    val hold: Int,
+    val sell: Int,
+    val strongSell: Int,
+    val period: Long
+)
+
 fun StockItem.asFavouriteDatabaseModel(): FavouriteDatabaseModel {
     return FavouriteDatabaseModel(
         ticker = this.ticker,

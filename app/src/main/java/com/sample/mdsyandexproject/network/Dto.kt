@@ -1,8 +1,11 @@
 package com.sample.mdsyandexproject.network
 
 import com.sample.mdsyandexproject.database.Prices
+import com.sample.mdsyandexproject.database.Recommendation
 import com.sample.mdsyandexproject.database.SPIndices
 import com.sample.mdsyandexproject.domain.NewsItem
+import com.sample.mdsyandexproject.domain.RecommendationItem
+import com.sample.mdsyandexproject.utils.parseStringDate
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.Json
 import com.squareup.moshi.ToJson
@@ -86,6 +89,16 @@ data class NewsDto(
     @Json(name = "url") val url: String
 )
 
+data class RecommendationDto(
+    @Json(name = "symbol") val ticker: String,
+    val buy: Int,
+    val strongBuy: Int,
+    val hold: Int,
+    val sell: Int,
+    val strongSell: Int,
+    val period: String
+)
+
 data class DataJson(
     val p: Float?,
     val s: String?,
@@ -163,6 +176,35 @@ fun List<NewsDto>.asDomainModel(): List<NewsItem> {
             datetime = it.datetime,
             url = it.url,
             summary = it.summary
+        )
+    }
+}
+
+fun List<RecommendationDto>.asDatabaseModel(): List<Recommendation> {
+    return map {
+        Recommendation(
+            ticker = it.ticker,
+            buy = it.buy,
+            strongBuy = it.strongBuy,
+            hold = it.hold,
+            sell = it.sell,
+            strongSell = it.strongSell,
+            period = parseStringDate(it.period)
+        )
+    }
+}
+
+@JvmName("asDomainModelRecommendationDto")
+fun List<RecommendationDto>.asDomainModel(): List<RecommendationItem> {
+    return map {
+        RecommendationItem(
+            ticker = it.ticker,
+            buy = it.buy,
+            strongBuy = it.strongBuy,
+            hold = it.hold,
+            sell = it.sell,
+            strongSell = it.strongSell,
+            period = parseStringDate(it.period)
         )
     }
 }
