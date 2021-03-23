@@ -32,6 +32,18 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:src="@drawable/ic_yandex_stab" />
 
+        <ImageView
+            android:id="@+id/share"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="@dimen/list_horizontal_margin"
+            android:contentDescription="@string/image_for_news_logo"
+            android:background="@drawable/ic_share"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            />
+
         <TextView
             android:id="@+id/headline"
             style="@style/H2_text_style"
@@ -48,13 +60,14 @@
 
         <TextView
             android:id="@+id/summary"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
             android:text="@{newsItem.summary}"
+            app:layout_constraintStart_toStartOf="@id/headline"
             app:layout_constraintTop_toBottomOf="@id/headline"
+            app:layout_constraintEnd_toEndOf="@id/headline"
+            tools:text="«Яндекс» показал зимние испытания беспилотников"
             />
 
         <TextView

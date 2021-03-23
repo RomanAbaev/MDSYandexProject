@@ -39,12 +39,22 @@ class NewsFragment : Fragment() {
         val manager = LinearLayoutManager(activity)
         binding.newsList.layoutManager = manager
         val adapter = NewsItemAdapter(
-            newsItemListener = NewsItemListener {
+            newsItemListener = NewsItemListener { url ->
                 startActivity(
                     Intent(Intent.ACTION_VIEW).apply {
-                        data = Uri.parse(it)
+                        data = Uri.parse(url)
                     }
                 )
+            },
+            shareItemListener = ShareItemListener { url ->
+                val sendIntent: Intent = Intent().apply {
+                    action = Intent.ACTION_SEND
+                    putExtra(Intent.EXTRA_TEXT, url)
+                    type = "text/plain"
+                }
+
+                val shareIntent = Intent.createChooser(sendIntent, null)
+                startActivity(shareIntent)
             }
         )
         binding.newsList.adapter = adapter
