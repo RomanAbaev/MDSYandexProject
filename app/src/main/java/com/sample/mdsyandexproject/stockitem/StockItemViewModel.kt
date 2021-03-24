@@ -27,12 +27,15 @@ class StockItemViewModel : ViewModel() {
     val news = MutableLiveData<MutableList<NewsItem>>(mutableListOf())
     var loading = MutableLiveData(false)
 
+    var recommendationDataLoading = MutableLiveData(false)
     var chartLoading = MutableLiveData(false)
     val candlesData = MutableLiveData<List<CandleEntry>>()
     val loadCandleInfoException: LiveData<Pair<Boolean, String>> =
         repository.loadCandleInfoException
     val loadNewsException: LiveData<Pair<Boolean, String>> =
         repository.loadNewsException
+    val loadRecommendationsException: LiveData<Pair<Boolean, String>> =
+        repository.loadRecommendationsException
 
     val checkedPeriod = MutableLiveData<Int>()
 
@@ -165,8 +168,13 @@ class StockItemViewModel : ViewModel() {
         newsPage = 0;
     }
 
+    fun onTriedAgainGetRecommendationBtnClick() {
+        repository.loadRecommendationsException.value = Pair(false, "")
+    }
+
     fun getRecommendations() {
         viewModelScope.launch(Dispatchers.IO) {
+            recommendationDataLoading.postValue(true)
             val data = repository.updateRecommendation(stockItem.ticker)
             data?.let {
                 val values = mutableListOf<BarEntry>()
@@ -205,6 +213,7 @@ class StockItemViewModel : ViewModel() {
                 val dataSet = listOf<IBarDataSet>(barDataSet)
                 val barData = BarData(dataSet)
                 recommendationData.postValue(barData)
+                recommendationDataLoading.postValue(false)
             }
         }
     }
