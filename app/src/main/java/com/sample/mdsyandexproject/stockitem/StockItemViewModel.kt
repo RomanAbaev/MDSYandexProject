@@ -1,7 +1,12 @@
 package com.sample.mdsyandexproject.stockitem
 
+import android.graphics.Color
 import androidx.lifecycle.*
+import com.github.mikephil.charting.data.BarData
+import com.github.mikephil.charting.data.BarDataSet
+import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.data.CandleEntry
+import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.sample.mdsyandexproject.domain.NewsItem
 import com.sample.mdsyandexproject.domain.RecommendationItem
 import com.sample.mdsyandexproject.domain.StockItem
@@ -17,7 +22,8 @@ class StockItemViewModel : ViewModel() {
 
     lateinit var stockItem: StockItem
 
-    val recommendation = MutableLiveData<List<RecommendationItem>>()
+    val recommendationData = MutableLiveData<BarData>()
+
     val news = MutableLiveData<MutableList<NewsItem>>(mutableListOf())
     var loading = MutableLiveData(false)
 
@@ -159,11 +165,46 @@ class StockItemViewModel : ViewModel() {
         newsPage = 0;
     }
 
-    fun getRecommendations(ticker: String) {
+    fun getRecommendations() {
         viewModelScope.launch(Dispatchers.IO) {
             val data = repository.updateRecommendation(stockItem.ticker)
             data?.let {
-                recommendation.postValue(it)
+                val values = mutableListOf<BarEntry>()
+                for ((index, item) in it.withIndex()) {
+                    val valArr = floatArrayOf(
+                        item.strongSell.toFloat(),
+                        item.sell.toFloat(),
+                        item.hold.toFloat(),
+                        item.buy.toFloat(),
+                        item.strongBuy.toFloat()
+                    )
+                    values.add(
+                        BarEntry(
+                            index.toFloat(),
+                            valArr
+                        )
+                    )
+                }
+                val barDataSet = BarDataSet(values, "Recommend")
+                barDataSet.colors =
+                    listOf(
+                        Color.rgb(129, 49, 49),
+                        Color.rgb(244, 91, 91),
+                        Color.rgb(185, 139, 29),
+                        Color.rgb(29, 185, 84),
+                        Color.rgb(23, 111, 55)
+                    )
+                barDataSet.stackLabels =
+                    arrayOf(
+                        "Strong Buy",
+                        "Buy",
+                        "Hold",
+                        "Sell",
+                        "Strong sell",
+                    )
+                val dataSet = listOf<IBarDataSet>(barDataSet)
+                val barData = BarData(dataSet)
+                recommendationData.postValue(barData)
             }
         }
     }
