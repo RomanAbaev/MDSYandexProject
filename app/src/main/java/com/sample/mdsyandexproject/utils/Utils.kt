@@ -1,5 +1,10 @@
 package com.sample.mdsyandexproject.utils
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
+import com.sample.mdsyandexproject.App
 import com.sample.mdsyandexproject.domain.StockItem
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
@@ -10,6 +15,8 @@ import org.joda.time.format.DateTimeFormatter
 import retrofit2.HttpException
 
 val EST = DateTimeZone.forID("America/New_York")
+const val YYYY_MM_dd = "YYYY-MM-dd"
+const val MMM_YY = "MMM-YY"
 
 fun isPreviousClosePriceValid(
     currentDate: LocalDate = DateTime.now().toLocalDate(),
@@ -54,8 +61,35 @@ fun getReadableNetworkMessage(ex: HttpException): String {
     }
 }
 
-fun parseStringDate(date: String): Long {
-    val formatter: DateTimeFormatter = DateTimeFormat.forPattern("YYYY-MM-dd")
+fun convertLongToDate(format: String, date: Long): String {
+    val formatter: DateTimeFormatter = DateTimeFormat.forPattern(format)
+    return DateTime(date).toLocalDate().toString(formatter)
+}
+
+fun parseStringDate(format: String, date: String): Long {
+    val formatter: DateTimeFormatter = DateTimeFormat.forPattern(format)
     val dateTime = formatter.parseDateTime(date)
     return dateTime.millis
+}
+
+fun getFromAndToDateForNews(newsPage: Int): String =
+    DateTime.now().minusDays(newsPage).toLocalDate().toString()
+
+fun getStartAndEndOfDayMillis(newsPage: Int): Pair<Long, Long> {
+    val dateTime = DateTime.now().minusDays(newsPage)
+    val start: Long = dateTime.withTimeAtStartOfDay().millis / 1000L
+    val end: Long = dateTime.plusDays(1).withTimeAtStartOfDay().millis / 1000L
+    return Pair(start, end)
+}
+
+fun isNetworkAvailable(): Boolean {
+    val connectivityManager = App.applicationContext()
+        .getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    val nw = connectivityManager.activeNetwork ?: return false
+    val actNw = connectivityManager.getNetworkCapabilities(nw) ?: return false
+    return when {
+        actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+        actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+        else -> false
+    }
 }

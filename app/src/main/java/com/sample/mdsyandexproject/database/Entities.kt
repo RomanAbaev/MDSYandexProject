@@ -1,9 +1,8 @@
 package com.sample.mdsyandexproject.database
 
-import androidx.room.Entity
-import androidx.room.Index
-import androidx.room.PrimaryKey
-import androidx.room.TypeConverter
+import androidx.room.*
+import com.sample.mdsyandexproject.domain.NewsItem
+import com.sample.mdsyandexproject.domain.RecommendationItem
 import com.sample.mdsyandexproject.domain.StockItem
 import java.util.*
 
@@ -41,6 +40,46 @@ data class SPIndices(
     val indices: String,
     val isLoaded: Boolean,
     val symbol: String = "^GSPC"
+)
+
+@Entity
+data class News(
+    @PrimaryKey
+    val newsId: Long,
+    val ticker: String,
+    val datetime: Long,
+    val headline: String,
+    val image: String,
+    val source: String,
+    val summary: String,
+    val url: String
+)
+
+@Entity(primaryKeys = ["ticker", "newsId"])
+data class StockNewsCrossRef(
+    val ticker: String,
+    val newsId: Long
+)
+
+data class StockWithNews(
+    @Embedded val stockItem: DatabaseStockItem,
+    @Relation(
+        parentColumn = "ticker",
+        entityColumn = "newsId",
+        associateBy = Junction(StockNewsCrossRef::class)
+    )
+    val news: List<News>
+)
+
+@Entity(primaryKeys = ["ticker", "period"])
+data class Recommendation(
+    val ticker: String,
+    val buy: Int,
+    val strongBuy: Int,
+    val hold: Int,
+    val sell: Int,
+    val strongSell: Int,
+    val period: Long
 )
 
 data class QuoteAndCompanyProfileDb(
@@ -119,10 +158,45 @@ fun List<DatabaseStockItem>.asDomainModel(): List<StockItem> {
             currentPriceDate = it.currentPriceDate,
             previousClosePrice = it.previousClosePrice,
             previousClosePriceDate = it.previousClosePriceDate,
-            dayDelta = it.dayDelta,
             currency = it.currency,
+            country = it.country,
+            exchange = it.exchange,
+            ipo = it.ipo,
+            marketCapitalization = it.marketCapitalization,
+            phone = it.phone,
+            weburl = it.weburl,
             error = it.error,
             errorMessage = it.errorMessage,
+        )
+    }
+}
+
+@JvmName("asDomainModelNews")
+fun List<News>.asDomainModel(): List<NewsItem> {
+    return map {
+        NewsItem(
+            id = it.newsId,
+            logo = it.image,
+            headline = it.headline,
+            source = it.source,
+            datetime = it.datetime,
+            url = it.url,
+            summary = it.summary
+        )
+    }
+}
+
+@JvmName("asDomainModelRecommendation")
+fun List<Recommendation>.asDomainModel(): List<RecommendationItem> {
+    return map {
+        RecommendationItem(
+            ticker = it.ticker,
+            buy = it.buy,
+            strongBuy = it.strongBuy,
+            hold = it.hold,
+            sell = it.sell,
+            strongSell = it.strongSell,
+            period = it.period
         )
     }
 }

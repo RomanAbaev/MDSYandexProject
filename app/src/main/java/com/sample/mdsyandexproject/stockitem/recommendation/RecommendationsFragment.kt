@@ -4,10 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.google.android.material.snackbar.Snackbar
+import com.sample.mdsyandexproject.App
 import com.sample.mdsyandexproject.R
 import com.sample.mdsyandexproject.databinding.FragmentRecomendationsBinding
 import com.sample.mdsyandexproject.stockitem.StockItemViewModel
@@ -30,15 +32,31 @@ class RecommendationsFragment : Fragment() {
                 false
             )
 
-        stockItemViewModel.getRecommendations()
-        stockItemViewModel.recommendationData.observe(viewLifecycleOwner, { data ->
+        binding.viewModel = stockItemViewModel
+
+        stockItemViewModel.recommendations.observe(viewLifecycleOwner, { data ->
             data?.let {
-                binding.recommendationChart.data = data
+                binding.recommendationChart.xAxis.apply {
+                    this.position = data.second.position
+                    this.setDrawGridLines(true)
+                    this.granularity = data.second.granularity
+                    this.labelCount = data.second.labelCount
+                    this.valueFormatter = data.second.valueFormatter
+                    this.typeface =
+                        ResourcesCompat.getFont(App.applicationContext(), R.font.montserrat_regular)
+                }
+                binding.recommendationChart.legend
+                binding.recommendationChart.data = data.first
+                binding.recommendationChart.setPinchZoom(false)
+                binding.recommendationChart.setDrawValueAboveBar(false)
+                binding.recommendationChart.isHighlightFullBarEnabled = false
                 binding.recommendationChart.notifyDataSetChanged()
                 binding.recommendationChart.invalidate()
             }
         })
 
+        stockItemViewModel.updateRecommendations()
+        stockItemViewModel.getRecommendationCount()
         stockItemViewModel.recommendationDataLoading.observe(viewLifecycleOwner, { isLoading ->
             when (isLoading) {
                 true -> {
@@ -52,6 +70,27 @@ class RecommendationsFragment : Fragment() {
             }
         })
 
+        stockItemViewModel.recommendationOffset.observe(viewLifecycleOwner, { offset ->
+            if (offset == 0) {
+                binding.next.isEnabled = false
+                binding.next.setImageResource(R.drawable.ic_next_disabled)
+            } else {
+                binding.next.isEnabled = true
+                binding.next.setImageResource(R.drawable.ic_next)
+                if (stockItemViewModel.recommendationCount != -1
+                    &&
+                    offset + stockItemViewModel.recommendationLimit >= stockItemViewModel.recommendationCount
+                ) {
+                    binding.previous.isEnabled = false
+                    binding.previous.setImageResource(R.drawable.ic_previous_disabled)
+                } else {
+                    binding.previous.isEnabled = true
+                    binding.previous.setImageResource(R.drawable.ic_previous)
+                }
+
+            }
+        })
+
         stockItemViewModel.loadRecommendationsException.observe(viewLifecycleOwner,
             {
                 when (it.first) {
@@ -62,7 +101,7 @@ class RecommendationsFragment : Fragment() {
                             Snackbar.LENGTH_INDEFINITE
                         ).setAction(getString(R.string.try_again)) {
                             stockItemViewModel.onTriedAgainGetRecommendationBtnClick()
-                            stockItemViewModel.getRecommendations()
+                            stockItemViewModel.updateRecommendations()
                         }.show()
                     }
                 }

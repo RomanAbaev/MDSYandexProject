@@ -6,8 +6,7 @@ import androidx.lifecycle.Transformations
 import com.sample.mdsyandexproject.database.*
 import com.sample.mdsyandexproject.domain.*
 import com.sample.mdsyandexproject.network.*
-import com.sample.mdsyandexproject.utils.getReadableNetworkMessage
-import com.sample.mdsyandexproject.utils.isCompanyInfoValid
+import com.sample.mdsyandexproject.utils.*
 import com.squareup.moshi.Moshi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -33,7 +32,7 @@ class RepositoryImpl {
     val submitSearchException = MutableLiveData<Pair<Boolean, String>>()
     val loadCandleInfoException = MutableLiveData<Pair<Boolean, String>>()
     val loadNewsException = MutableLiveData<Pair<Boolean, String>>()
-    val loadRecommendationsException = MutableLiveData<Pair<Boolean, String>>()
+    val updateRecommendationsException = MutableLiveData<Pair<Boolean, String>>()
 
     private var moshi: Moshi = Moshi.Builder()
         .add(DataJsonAdapter())
@@ -343,15 +342,40 @@ class RepositoryImpl {
         }
     }
 
-    suspend fun loadNews(ticker: String, from: String, to: String)
+    suspend fun loadNews(ticker: String, newsPage: Int)
             : List<NewsItem>? {
-        // TODO сделать обработку при отстутствии интернета
         return try {
-            finnHubApi.loadNews(
-                ticker,
-                from,
-                to
-            ).await().asDomainModel()
+            val fromAndToDate = getFromAndToDateForNews(newsPage)
+            val startAndEndOfDate = getStartAndEndOfDayMillis(newsPage)
+            when (isNetworkAvailable()) {
+                true -> {
+                    // get todays news always from network
+                    if (newsPage == 0) {
+                        val news = loadNewsFromNetwork(ticker, fromAndToDate)
+                        val newsAndRefs = news.asDatabaseModel()
+                        database.insertNews(newsAndRefs.first, newsAndRefs.second)
+                        return news.asDomainModel()
+                    } else {
+                        val news = loadNewsFromDb(
+                            ticker,
+                            startAndEndOfDate.first,
+                            startAndEndOfDate.second
+                        )
+                        return if (news.isNotEmpty())
+                            news.asDomainModel()
+                        else {
+                            val newsNetwork = loadNewsFromNetwork(ticker, fromAndToDate)
+                            val newsAndRefs = newsNetwork.asDatabaseModel()
+                            database.insertNews(newsAndRefs.first, newsAndRefs.second)
+                            newsNetwork.asDomainModel()
+                        }
+                    }
+                }
+                false -> {
+                    val n = loadNewsFromDb(ticker, startAndEndOfDate.first, startAndEndOfDate.second).asDomainModel()
+                    return n
+                }
+            }
         } catch (ex: HttpException) {
             ex.printStackTrace()
             loadNewsException.postValue(Pair(true, getReadableNetworkMessage(ex)))
@@ -363,17 +387,41 @@ class RepositoryImpl {
         }
     }
 
-    suspend fun updateRecommendation(ticker: String): List<RecommendationItem>? {
+    suspend fun loadNewsFromDb(ticker: String, from: Long, to: Long) =
+        database.getNews(ticker, from, to)
+
+    suspend fun loadNewsFromNetwork(ticker: String, fromAndToDate: String): List<NewsDto> =
+        finnHubApi.loadNews(
+            ticker,
+            fromAndToDate,
+            fromAndToDate
+        ).await()
+
+
+    fun getNextRecommendationChunks(
+        ticker: String,
+        offset: Int,
+        limit: Int
+    ): LiveData<List<RecommendationItem>> {
+        return Transformations.map(database.getRecommendations(ticker, offset, limit)) {
+            it.asDomainModel()
+        }
+    }
+
+    suspend fun getRecommendationCount(ticker: String): Int =
+        database.getRecommendationsCount(ticker)
+
+    suspend fun updateRecommendations(ticker: String) {
         return try {
-            finnHubApi.loadRecommendation(ticker = ticker).await().asDomainModel()
+            database.insertRecommendations(
+                finnHubApi.loadRecommendation(ticker = ticker).await().asDatabaseModel()
+            )
         } catch (ex: HttpException) {
             ex.printStackTrace()
-            loadRecommendationsException.postValue(Pair(true, getReadableNetworkMessage(ex)))
-            null
+            updateRecommendationsException.postValue(Pair(true, getReadableNetworkMessage(ex)))
         } catch (ex: Exception) {
             ex.printStackTrace()
-            loadRecommendationsException.postValue(Pair(true, "Something goes wrong"))
-            null
+            updateRecommendationsException.postValue(Pair(true, "Something goes wrong"))
         }
     }
 

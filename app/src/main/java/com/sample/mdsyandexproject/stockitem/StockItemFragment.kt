@@ -63,6 +63,6 @@ class StockItemFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        stockItemViewModel.resetNewsInformation()
+        stockItemViewModel.resetStockItemInformationInformation()
     }
 }

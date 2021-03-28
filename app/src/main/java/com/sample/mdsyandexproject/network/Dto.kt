@@ -1,10 +1,9 @@
 package com.sample.mdsyandexproject.network
 
-import com.sample.mdsyandexproject.database.Prices
-import com.sample.mdsyandexproject.database.Recommendation
-import com.sample.mdsyandexproject.database.SPIndices
+import com.sample.mdsyandexproject.database.*
 import com.sample.mdsyandexproject.domain.NewsItem
 import com.sample.mdsyandexproject.domain.RecommendationItem
+import com.sample.mdsyandexproject.utils.YYYY_MM_dd
 import com.sample.mdsyandexproject.utils.parseStringDate
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.Json
@@ -180,6 +179,33 @@ fun List<NewsDto>.asDomainModel(): List<NewsItem> {
     }
 }
 
+@JvmName("asDatabaseModelNewsDto")
+fun List<NewsDto>.asDatabaseModel(): Pair<List<News>, List<StockNewsCrossRef>> {
+    val newsDb = mutableListOf<News>()
+    val stockNewsCrossRef = mutableListOf<StockNewsCrossRef>()
+    map {
+        newsDb.add(
+            News(
+                newsId = it.id,
+                image = it.newsImage,
+                headline = it.headline,
+                source = it.source,
+                datetime = it.datetime,
+                url = it.url,
+                summary = it.summary,
+                ticker = it.ticker
+            )
+        )
+        stockNewsCrossRef.add(
+            StockNewsCrossRef(
+                newsId = it.id,
+                ticker = it.ticker
+            )
+        )
+    }
+    return Pair(newsDb, stockNewsCrossRef)
+}
+
 fun List<RecommendationDto>.asDatabaseModel(): List<Recommendation> {
     return map {
         Recommendation(
@@ -189,7 +215,7 @@ fun List<RecommendationDto>.asDatabaseModel(): List<Recommendation> {
             hold = it.hold,
             sell = it.sell,
             strongSell = it.strongSell,
-            period = parseStringDate(it.period)
+            period = parseStringDate(YYYY_MM_dd, it.period)
         )
     }
 }
@@ -204,7 +230,7 @@ fun List<RecommendationDto>.asDomainModel(): List<RecommendationItem> {
             hold = it.hold,
             sell = it.sell,
             strongSell = it.strongSell,
-            period = parseStringDate(it.period)
+            period = parseStringDate(YYYY_MM_dd, it.period)
         )
     }
 }

@@ -35,4 +35,6 @@
     <string name="phone">Phone:</string>
     <string name="weburl">Weburl:</string>
     <string name="url_style"><u>%1$s</u></string>
+    <string name="btn_for_previous_months_data">btn for previous months data</string>
+    <string name="btn_for_next_months_data">btn for next months data</string>
 </resources>

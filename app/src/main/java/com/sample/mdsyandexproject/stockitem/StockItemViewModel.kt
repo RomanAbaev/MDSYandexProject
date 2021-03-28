@@ -2,15 +2,18 @@ package com.sample.mdsyandexproject.stockitem
 
 import android.graphics.Color
 import androidx.lifecycle.*
+import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.data.CandleEntry
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.sample.mdsyandexproject.domain.NewsItem
-import com.sample.mdsyandexproject.domain.RecommendationItem
 import com.sample.mdsyandexproject.domain.StockItem
 import com.sample.mdsyandexproject.repository.Repository
+import com.sample.mdsyandexproject.stockitem.recommendation.XAxisValueFormatter
+import com.sample.mdsyandexproject.utils.MMM_YY
+import com.sample.mdsyandexproject.utils.convertLongToDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -22,12 +25,14 @@ class StockItemViewModel : ViewModel() {
 
     lateinit var stockItem: StockItem
 
-    val recommendationData = MutableLiveData<BarData>()
+    var recommendationOffset = MutableLiveData(0)
+    var recommendationLimit = 4
+    var recommendationDataLoading = MutableLiveData(false)
+    var recommendationCount: Int = -1
 
     val news = MutableLiveData<MutableList<NewsItem>>(mutableListOf())
     var loading = MutableLiveData(false)
 
-    var recommendationDataLoading = MutableLiveData(false)
     var chartLoading = MutableLiveData(false)
     val candlesData = MutableLiveData<List<CandleEntry>>()
     val loadCandleInfoException: LiveData<Pair<Boolean, String>> =
@@ -35,7 +40,7 @@ class StockItemViewModel : ViewModel() {
     val loadNewsException: LiveData<Pair<Boolean, String>> =
         repository.loadNewsException
     val loadRecommendationsException: LiveData<Pair<Boolean, String>> =
-        repository.loadRecommendationsException
+        repository.updateRecommendationsException
 
     val checkedPeriod = MutableLiveData<Int>()
 
@@ -137,11 +142,9 @@ class StockItemViewModel : ViewModel() {
             val newNewsPage: MutableList<NewsItem> = mutableListOf()
             if (currentListNews != null && currentListNews.isNotEmpty()) loading.postValue(true)
             do {
-                val fromAndToDate = getFromAndToDateForNews()
                 loadedNews = repository.loadNews(
                     stockItem.ticker,
-                    fromAndToDate,
-                    fromAndToDate
+                    newsPage
                 )
                 if (loadedNews != null) {
                     newsPage++
@@ -156,29 +159,39 @@ class StockItemViewModel : ViewModel() {
         }
     }
 
-    private fun getFromAndToDateForNews(): String =
-        DateTime.now().minusDays(newsPage).toLocalDate().toString()
-
     fun onTriedAgainLoadNewsBtnClick() {
         repository.loadNewsException.value = Pair(false, "")
     }
 
-    fun resetNewsInformation() {
+    fun resetStockItemInformationInformation() {
         this@StockItemViewModel.news.value = mutableListOf()
+        recommendationOffset.value = 0
         newsPage = 0;
     }
 
     fun onTriedAgainGetRecommendationBtnClick() {
-        repository.loadRecommendationsException.value = Pair(false, "")
+        repository.updateRecommendationsException.value = Pair(false, "")
     }
 
-    fun getRecommendations() {
+    fun updateRecommendations() {
         viewModelScope.launch(Dispatchers.IO) {
-            recommendationDataLoading.postValue(true)
-            val data = repository.updateRecommendation(stockItem.ticker)
-            data?.let {
+            repository.updateRecommendations(stockItem.ticker)
+        }
+    }
+
+    private var _recommendations: LiveData<Pair<BarData, XAxis>> =
+        Transformations.switchMap(recommendationOffset) { offset ->
+            recommendationDataLoading.value = true
+            return@switchMap Transformations.map(
+                repository.getNextRecommendationChunks(
+                    stockItem.ticker,
+                    offset,
+                    recommendationLimit
+                )
+            ) {
                 val values = mutableListOf<BarEntry>()
-                for ((index, item) in it.withIndex()) {
+                val periods = mutableListOf<String>()
+                for ((index, item) in it.asReversed().withIndex()) {
                     val valArr = floatArrayOf(
                         item.strongSell.toFloat(),
                         item.sell.toFloat(),
@@ -192,8 +205,15 @@ class StockItemViewModel : ViewModel() {
                             valArr
                         )
                     )
+                    periods.add(convertLongToDate(MMM_YY, item.period))
                 }
-                val barDataSet = BarDataSet(values, "Recommend")
+                val xAxis = XAxis()
+                xAxis.position = XAxis.XAxisPosition.BOTTOM
+                xAxis.setDrawGridLines(true)
+                xAxis.granularity = 1f
+                xAxis.labelCount = 7
+                xAxis.valueFormatter = XAxisValueFormatter(periods)
+                val barDataSet = BarDataSet(values, "")
                 barDataSet.colors =
                     listOf(
                         Color.rgb(129, 49, 49),
@@ -204,18 +224,34 @@ class StockItemViewModel : ViewModel() {
                     )
                 barDataSet.stackLabels =
                     arrayOf(
-                        "Strong Buy",
-                        "Buy",
-                        "Hold",
-                        "Sell",
                         "Strong sell",
+                        "Sell",
+                        "Hold",
+                        "Buy",
+                        "Strong Buy"
                     )
                 val dataSet = listOf<IBarDataSet>(barDataSet)
-                val barData = BarData(dataSet)
-                recommendationData.postValue(barData)
-                recommendationDataLoading.postValue(false)
+                recommendationDataLoading.value = false
+                Pair(BarData(dataSet), xAxis)
             }
         }
+    val recommendations: LiveData<Pair<BarData, XAxis>>
+        get() = _recommendations
+
+    fun getRecommendationCount() {
+        viewModelScope.launch(Dispatchers.IO) {
+            recommendationCount = repository.getRecommendationCount(stockItem.ticker)
+        }
+    }
+
+    fun loadPreviousMonthRecommendations() {
+        val offset: Int = recommendationOffset.value ?: 0
+        recommendationOffset.value = offset + recommendationLimit
+    }
+
+    fun loadNextMonthRecommendations() {
+        val offset: Int = recommendationOffset.value ?: 0
+        recommendationOffset.value = offset - recommendationLimit
     }
 
     companion object {
