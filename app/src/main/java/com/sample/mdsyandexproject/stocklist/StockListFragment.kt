@@ -85,8 +85,10 @@ class StockListFragment : Fragment() {
         stockListViewModel.stockList.observe(viewLifecycleOwner, {
             it?.let { stockList ->
                 lifecycleScope.launch {
-                    if (stockList.isEmpty() && stockListViewModel.showFavouriteList.value == false)
+                    if (stockList.isEmpty() && stockListViewModel.showFavouriteList.value == false) {
+                        stockListViewModel.loadNextChunks()
                         binding.rvPb.visibility = View.VISIBLE
+                    }
                     else binding.rvPb.visibility = View.GONE
                     adapter.submitList(stockList)
                 }

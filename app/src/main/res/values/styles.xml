@@ -61,11 +61,9 @@
     </style>
 
     <style name="expandedTouchAreaStyle">
-        <item name="android:paddingStart">4dp</item>
-        <item name="android:minWidth">40dp</item>
-        <item name="android:paddingEnd">4dp</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
         <item name="android:paddingTop">8dp</item>
-        <item name="android:minHeight">32dp</item>
         <item name="android:paddingBottom">8dp</item>
     </style>
 

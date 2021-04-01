@@ -23,7 +23,8 @@ class StockListViewModel : ViewModel() {
     val stockList: LiveData<List<StockItem>>
         get() = _stockList
 
-    val loadNextChunksException: LiveData<Pair<Boolean, String>> = repository.loadNextChunksException
+    val loadNextChunksException: LiveData<Pair<Boolean, String>> =
+        repository.loadNextChunksException
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -65,12 +66,15 @@ class StockListViewModel : ViewModel() {
 
     fun loadNextChunks() {
         viewModelScope.launch {
-            loading.value = true
-            withContext(Dispatchers.IO) {
-                repository.loadNextChunks()
+            if (loading.value == false) {
+                loading.value = true
+                withContext(Dispatchers.IO) {
+                    repository.loadNextChunks()
+                }
+                loading.value = false
             }
-            loading.value = false
         }
+
     }
 
     fun onTriedAgainBtnClick() {
