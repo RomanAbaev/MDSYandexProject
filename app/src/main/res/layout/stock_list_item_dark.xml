@@ -31,10 +31,10 @@
             android:layout_marginBottom="@dimen/stock_logo_margin"
             android:contentDescription="@string/logo_image_for_stock"
             app:imageUrl="@{stockItem.logoUrl}"
-            tools:src = "@drawable/ic_yandex_stab"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/ic_yandex_stab" />
 
         <TextView
             android:id="@+id/stock_ticker"
@@ -50,6 +50,7 @@
 
         <ImageView
             android:id="@+id/stock_favour_btn"
+            style="@style/expandedTouchAreaStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="6dp"

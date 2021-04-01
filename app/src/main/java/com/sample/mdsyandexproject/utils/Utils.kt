@@ -3,7 +3,6 @@ package com.sample.mdsyandexproject.utils
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import android.os.Build
 import com.sample.mdsyandexproject.App
 import com.sample.mdsyandexproject.domain.StockItem
 import org.joda.time.DateTime

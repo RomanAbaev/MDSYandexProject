@@ -34,15 +34,15 @@
 
         <ImageView
             android:id="@+id/share"
+            style="@style/expandedTouchAreaStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
             android:layout_marginEnd="@dimen/list_horizontal_margin"
-            android:contentDescription="@string/image_for_news_logo"
+            android:layout_marginBottom="8dp"
             android:background="@drawable/ic_share"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:contentDescription="@string/image_for_news_logo"
             app:layout_constraintBottom_toBottomOf="parent"
-            />
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <TextView
             android:id="@+id/headline"
@@ -50,8 +50,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/list_horizontal_margin"
-            android:layout_marginEnd="@dimen/list_horizontal_margin"
             android:layout_marginTop="8dp"
+            android:layout_marginEnd="@dimen/list_horizontal_margin"
             android:text="@{newsItem.headline}"
             app:layout_constraintEnd_toStartOf="@id/logo"
             app:layout_constraintStart_toStartOf="parent"
@@ -64,11 +64,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="@{newsItem.summary}"
+            app:layout_constraintEnd_toEndOf="@id/headline"
             app:layout_constraintStart_toStartOf="@id/headline"
             app:layout_constraintTop_toBottomOf="@id/headline"
-            app:layout_constraintEnd_toEndOf="@id/headline"
-            tools:text="«Яндекс» показал зимние испытания беспилотников"
-            />
+            tools:text="«Яндекс» показал зимние испытания беспилотников" />
 
         <TextView
             android:id="@+id/source"
@@ -87,10 +86,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            app:unixDate="@{newsItem.datetime}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@id/source"
             app:layout_constraintTop_toBottomOf="@id/source"
+            app:unixDate="@{newsItem.datetime}"
             tools:text="18.03.2020 20:04" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

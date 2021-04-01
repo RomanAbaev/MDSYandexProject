@@ -36,6 +36,7 @@
 
                 <ImageView
                     android:id="@+id/left_drawable"
+                    style="@style/expandedTouchAreaStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -58,6 +59,7 @@
 
                 <ImageView
                     android:id="@+id/right_search_drawable"
+                    style="@style/expandedTouchAreaStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
