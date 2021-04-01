@@ -20,7 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:background="@drawable/rv_item_shape_light">
+        android:background="@drawable/shape_rv_item_light">
 
         <ImageView
             android:id="@+id/stock_logo"

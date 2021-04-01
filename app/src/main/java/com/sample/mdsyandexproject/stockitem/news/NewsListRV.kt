@@ -39,8 +39,8 @@ class NewsItemAdapter(
             this.newsItem = newsItem
             binding.newsItem = newsItem
             binding.newsItemListener = newsItemListener
-            if (adapterPosition % 2 == 0) binding.root.setBackgroundResource(R.drawable.rv_item_shape_dark)
-            else binding.root.setBackgroundResource(R.drawable.rv_item_shape_light)
+            if (adapterPosition % 2 == 0) binding.root.setBackgroundResource(R.drawable.shape_rv_item_dark)
+            else binding.root.setBackgroundResource(R.drawable.shape_rv_item_light)
             binding.share.setOnClickListener {
                 shareItemListener.onClick(newsItem.url)
             }

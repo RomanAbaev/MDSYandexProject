@@ -51,7 +51,7 @@ class ChartFragment : Fragment() {
         stockItemViewModel.checkedPeriod.observe(viewLifecycleOwner, { period ->
             if (checkedPeriod != -1) {
                 val v = binding.chartButtonGroup.getChildAt(checkedPeriod) as TextView
-                v.setBackgroundResource(R.drawable.chart_btn_shape_unselected)
+                v.setBackgroundResource(R.drawable.shape_chart_btn_unselected)
                 v.setTextColor(resources.getColor(R.color.black))
             }
             checkedPeriod = period
@@ -131,7 +131,7 @@ class ChartFragment : Fragment() {
     }
 
     private fun selectChartBtn(v: TextView) {
-        v.setBackgroundResource(R.drawable.chart_btn_shape_selected)
+        v.setBackgroundResource(R.drawable.shape_chart_btn_selected)
         v.setTextColor(resources.getColor(R.color.white))
     }
 }

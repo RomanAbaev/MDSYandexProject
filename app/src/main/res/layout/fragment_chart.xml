@@ -82,42 +82,42 @@
             <TextView
                 android:id="@+id/day"
                 style="@style/ChartBtnStyle"
-                android:background="@drawable/chart_btn_shape_unselected"
+                android:background="@drawable/shape_chart_btn_unselected"
                 android:onClick="@{() -> chartBtnListener.onClick(0)}"
                 android:text="@string/one_day_candles" />
 
             <TextView
                 android:id="@+id/week"
                 style="@style/ChartBtnStyle"
-                android:background="@drawable/chart_btn_shape_unselected"
+                android:background="@drawable/shape_chart_btn_unselected"
                 android:onClick="@{() -> chartBtnListener.onClick(1)}"
                 android:text="@string/one_week_candles" />
 
             <TextView
                 android:id="@+id/month"
                 style="@style/ChartBtnStyle"
-                android:background="@drawable/chart_btn_shape_unselected"
+                android:background="@drawable/shape_chart_btn_unselected"
                 android:onClick="@{() -> chartBtnListener.onClick(2)}"
                 android:text="@string/one_month_candles" />
 
             <TextView
                 android:id="@+id/six_month"
                 style="@style/ChartBtnStyle"
-                android:background="@drawable/chart_btn_shape_unselected"
+                android:background="@drawable/shape_chart_btn_unselected"
                 android:onClick="@{() -> chartBtnListener.onClick(3)}"
                 android:text="@string/six_month_candles" />
 
             <TextView
                 android:id="@+id/year"
                 style="@style/ChartBtnStyle"
-                android:background="@drawable/chart_btn_shape_unselected"
+                android:background="@drawable/shape_chart_btn_unselected"
                 android:onClick="@{() -> chartBtnListener.onClick(4)}"
                 android:text="@string/one_year_candles" />
 
             <TextView
                 android:id="@+id/all"
                 style="@style/ChartBtnStyle"
-                android:background="@drawable/chart_btn_shape_unselected"
+                android:background="@drawable/shape_chart_btn_unselected"
                 android:onClick="@{() -> chartBtnListener.onClick(5)}"
                 android:text="@string/all_candles" />
 
