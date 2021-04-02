@@ -37,4 +37,12 @@
     <string name="url_style"><u>%1$s</u></string>
     <string name="btn_for_previous_months_data">btn for previous months data</string>
     <string name="btn_for_next_months_data">btn for next months data</string>
+    <string name="chart_tab_name">Chart</string>
+    <string name="news_tab_name">News</string>
+    <string name="summary_tab_name">Summary</string>
+    <string name="recommendations_tab_name">Recommendations</string>
+    <string name="permission_denied_error">Permission denied</string>
+    <string name="limit_exceeded_error">Your limit exceeded</string>
+    <string name="common_error">Something goes wrong</string>
+    <string name="chart_period_info_message">This period is available only in premium account</string>
 </resources>

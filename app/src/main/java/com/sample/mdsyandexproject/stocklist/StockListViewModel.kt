@@ -11,7 +11,7 @@ import kotlinx.coroutines.withContext
 @ExperimentalCoroutinesApi
 class StockListViewModel : ViewModel() {
 
-    private val repository = Repository.instance
+    private val repository = Repository
 
     var loading = MutableLiveData(false)
     val showFavouriteList = MutableLiveData(false)

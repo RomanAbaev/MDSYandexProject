@@ -11,6 +11,7 @@ import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.sample.mdsyandexproject.domain.NewsItem
 import com.sample.mdsyandexproject.domain.StockItem
 import com.sample.mdsyandexproject.repository.Repository
+import com.sample.mdsyandexproject.stockitem.CandleChartDataPeriods.*
 import com.sample.mdsyandexproject.stockitem.recommendation.XAxisValueFormatter
 import com.sample.mdsyandexproject.utils.MMM_YY
 import com.sample.mdsyandexproject.utils.convertLongToDate
@@ -21,7 +22,7 @@ import org.joda.time.DateTime
 
 class StockItemViewModel : ViewModel() {
 
-    private val repository = Repository.instance
+    private val repository = Repository
 
     lateinit var stockItem: StockItem
 
@@ -53,7 +54,7 @@ class StockItemViewModel : ViewModel() {
         }
     }
 
-    fun loadCandlesInfo(ticker: String, from: Long, to: Long) {
+    private fun loadCandlesInfo(ticker: String, from: Long, to: Long) {
         charLoadingJob?.cancel()
         charLoadingJob = viewModelScope.launch(Dispatchers.IO) {
             chartLoading.postValue(true)
@@ -83,42 +84,42 @@ class StockItemViewModel : ViewModel() {
     fun onCandlePeriodClick(period: Int) {
         checkedPeriod.value = period
         when (period) {
-            DAY -> {
+            DAY.ordinal -> {
                 loadCandlesInfo(
                     stockItem.ticker,
                     DateTime.now().minusDays(1).millis.div(1000L),
                     DateTime.now().millis.div(1000L)
                 )
             }
-            WEEK -> {
+            WEEK.ordinal -> {
                 loadCandlesInfo(
                     stockItem.ticker,
                     DateTime.now().minusWeeks(1).millis.div(1000L),
                     DateTime.now().millis.div(1000L)
                 )
             }
-            MONTH -> {
+            MONTH.ordinal -> {
                 loadCandlesInfo(
                     stockItem.ticker,
                     DateTime.now().minusMonths(1).millis.div(1000L),
                     DateTime.now().millis.div(1000L)
                 )
             }
-            SIX_MONTH -> {
+            SIX_MONTH.ordinal -> {
                 loadCandlesInfo(
                     stockItem.ticker,
                     DateTime.now().minusMonths(6).millis.div(1000L),
                     DateTime.now().millis.div(1000L)
                 )
             }
-            ONE_YEAR -> {
+            ONE_YEAR.ordinal -> {
                 loadCandlesInfo(
                     stockItem.ticker,
                     DateTime.now().minusYears(1).millis.div(1000L),
                     DateTime.now().millis.div(1000L)
                 )
             }
-            ALL -> {
+            ALL.ordinal -> {
                 loadCandlesInfo(
                     stockItem.ticker,
                     0,
@@ -253,13 +254,13 @@ class StockItemViewModel : ViewModel() {
         val offset: Int = recommendationOffset.value ?: 0
         recommendationOffset.value = offset - recommendationLimit
     }
+}
 
-    companion object {
-        const val DAY = 0
-        const val WEEK = 1
-        const val MONTH = 2
-        const val SIX_MONTH = 3
-        const val ONE_YEAR = 4
-        const val ALL = 5
-    }
+enum class CandleChartDataPeriods {
+    DAY,
+    WEEK,
+    MONTH,
+    SIX_MONTH,
+    ONE_YEAR,
+    ALL,
 }

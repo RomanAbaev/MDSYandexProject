@@ -3,6 +3,8 @@ package com.sample.mdsyandexproject.repository
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
+import com.sample.mdsyandexproject.App
+import com.sample.mdsyandexproject.R
 import com.sample.mdsyandexproject.database.*
 import com.sample.mdsyandexproject.domain.*
 import com.sample.mdsyandexproject.network.*
@@ -19,7 +21,7 @@ import retrofit2.HttpException
 import java.net.SocketTimeoutException
 import java.util.concurrent.ConcurrentHashMap
 
-class RepositoryImpl {
+object Repository {
 
     private val database = getDatabase().dao
     private val finnHubApi = FinnHubApi.finnHubService
@@ -114,7 +116,7 @@ class RepositoryImpl {
             loadNextChunksException.postValue(Pair(true, getReadableNetworkMessage(ex)))
         } catch (ex: Exception) {
             ex.printStackTrace()
-            loadNextChunksException.postValue(Pair(true, "Something goes wrong"))
+            loadNextChunksException.postValue(Pair(true, App.applicationContext().getString(R.string.common_error)))
         }
     }
 
@@ -268,7 +270,7 @@ class RepositoryImpl {
             submitSearchException.postValue(Pair(true, getReadableNetworkMessage(ex)))
         } catch (ex: Exception) {
             ex.printStackTrace()
-            submitSearchException.postValue(Pair(true, "Something goes wrong"))
+            submitSearchException.postValue(Pair(true, App.applicationContext().getString(R.string.common_error)))
         }
 
         val resultListFromNetwork: MutableList<StockItem>? = stockItemListNetwork?.result?.map {
@@ -337,7 +339,7 @@ class RepositoryImpl {
             null
         } catch (ex: Exception) {
             ex.printStackTrace()
-            loadCandleInfoException.postValue(Pair(true, "Something goes wrong"))
+            loadCandleInfoException.postValue(Pair(true, App.applicationContext().getString(R.string.common_error)))
             null
         }
     }
@@ -382,7 +384,7 @@ class RepositoryImpl {
             null
         } catch (ex: Exception) {
             ex.printStackTrace()
-            loadNewsException.postValue(Pair(true, "Something goes wrong"))
+            loadNewsException.postValue(Pair(true, App.applicationContext().getString(R.string.common_error)))
             null
         }
     }
@@ -421,7 +423,7 @@ class RepositoryImpl {
             updateRecommendationsException.postValue(Pair(true, getReadableNetworkMessage(ex)))
         } catch (ex: Exception) {
             ex.printStackTrace()
-            updateRecommendationsException.postValue(Pair(true, "Something goes wrong"))
+            updateRecommendationsException.postValue(Pair(true, App.applicationContext().getString(R.string.common_error)))
         }
     }
 
@@ -436,8 +438,4 @@ class RepositoryImpl {
 }
 
 const val limit = 20
-
-object Repository {
-    val instance: RepositoryImpl by lazy { RepositoryImpl() }
-}
 

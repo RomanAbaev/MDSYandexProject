@@ -1,6 +1,7 @@
 package com.sample.mdsyandexproject
 
 import android.app.Application
+import android.content.Context
 
 class App: Application() {
 
@@ -12,6 +13,6 @@ class App: Application() {
     companion object {
         private lateinit var instance: Application
 
-        fun applicationContext() = instance.applicationContext
+        fun applicationContext(): Context = instance.applicationContext
     }
 }

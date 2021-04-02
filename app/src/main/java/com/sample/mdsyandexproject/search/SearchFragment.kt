@@ -1,12 +1,15 @@
 package com.sample.mdsyandexproject.search
 
-import android.content.Context
+import android.content.Context.INPUT_METHOD_SERVICE
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.view.inputmethod.InputMethodManager.HIDE_IMPLICIT_ONLY
+import android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT
+import androidx.activity.addCallback
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -164,6 +167,10 @@ class SearchFragment : Fragment() {
             }
         )
 
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            findNavController().navigate(R.id.action_searchFragment_to_stockListFragment)
+        }
+
         return binding.root
     }
 
@@ -207,15 +214,13 @@ class SearchFragment : Fragment() {
 
     private fun showSoftKeyboard(view: View) {
         if (view.requestFocus()) {
-            val imm =
-                requireNotNull(context).getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
+            val imm = requireNotNull(context).getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.showSoftInput(view, SHOW_IMPLICIT)
         }
     }
 
     private fun hideSoftKeyboard(view: View) {
-        val imm =
-            requireNotNull(context).getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(view.windowToken, InputMethodManager.HIDE_IMPLICIT_ONLY)
+        val imm = requireNotNull(context).getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view.windowToken, HIDE_IMPLICIT_ONLY)
     }
 }

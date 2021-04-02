@@ -15,13 +15,8 @@ import com.github.mikephil.charting.data.CandleDataSet
 import com.google.android.material.snackbar.Snackbar
 import com.sample.mdsyandexproject.R
 import com.sample.mdsyandexproject.databinding.FragmentChartBinding
+import com.sample.mdsyandexproject.stockitem.CandleChartDataPeriods
 import com.sample.mdsyandexproject.stockitem.StockItemViewModel
-import com.sample.mdsyandexproject.stockitem.StockItemViewModel.Companion.ALL
-import com.sample.mdsyandexproject.stockitem.StockItemViewModel.Companion.DAY
-import com.sample.mdsyandexproject.stockitem.StockItemViewModel.Companion.MONTH
-import com.sample.mdsyandexproject.stockitem.StockItemViewModel.Companion.ONE_YEAR
-import com.sample.mdsyandexproject.stockitem.StockItemViewModel.Companion.SIX_MONTH
-import com.sample.mdsyandexproject.stockitem.StockItemViewModel.Companion.WEEK
 
 class ChartFragment : Fragment() {
 
@@ -56,24 +51,12 @@ class ChartFragment : Fragment() {
             }
             checkedPeriod = period
             when (period) {
-                ALL -> {
-                    selectChartBtn(binding.all)
-                }
-                DAY -> {
-                    selectChartBtn(binding.day)
-                }
-                WEEK -> {
-                    selectChartBtn(binding.week)
-                }
-                MONTH -> {
-                    selectChartBtn(binding.month)
-                }
-                SIX_MONTH -> {
-                    selectChartBtn(binding.sixMonth)
-                }
-                ONE_YEAR -> {
-                    selectChartBtn(binding.year)
-                }
+                CandleChartDataPeriods.ALL.ordinal -> selectChartBtn(binding.all)
+                CandleChartDataPeriods.DAY.ordinal -> selectChartBtn(binding.day)
+                CandleChartDataPeriods.WEEK.ordinal -> selectChartBtn(binding.week)
+                CandleChartDataPeriods.MONTH.ordinal -> selectChartBtn(binding.month)
+                CandleChartDataPeriods.SIX_MONTH.ordinal -> selectChartBtn(binding.sixMonth)
+                CandleChartDataPeriods.ONE_YEAR.ordinal -> selectChartBtn(binding.year)
             }
         })
 
@@ -90,7 +73,7 @@ class ChartFragment : Fragment() {
             }
         })
 
-        stockItemViewModel.onCandlePeriodClick(ALL)
+        stockItemViewModel.onCandlePeriodClick(CandleChartDataPeriods.ALL.ordinal)
 
         stockItemViewModel.candlesData.observe(viewLifecycleOwner, {
             if (it.isNotEmpty()) {

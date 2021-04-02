@@ -4,14 +4,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.addCallback
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.tabs.TabLayoutMediator
+import com.sample.mdsyandexproject.App
 import com.sample.mdsyandexproject.R
 import com.sample.mdsyandexproject.databinding.FragmentStockItemBinding
 import com.sample.mdsyandexproject.stockitem.StockItemFragmentArgs.fromBundle
+import com.sample.mdsyandexproject.stockitem.TabNames.*
 import com.sample.mdsyandexproject.stocklist.FavBtnListener
 
 
@@ -33,10 +36,11 @@ class StockItemFragment : Fragment() {
                 false
             )
 
-        val arguments = arguments?.let { fromBundle(it) }
         arguments?.let {
-            binding.stockItem = it.stockItem
-            stockItemViewModel.stockItem = requireNotNull(it.stockItem)
+            fromBundle(it).stockItem
+        }?.let { stockItem ->
+            binding.stockItem = stockItem
+            stockItemViewModel.stockItem = stockItem
         }
 
         binding.leftDrawable.setOnClickListener {
@@ -46,16 +50,20 @@ class StockItemFragment : Fragment() {
         binding.viewPager.adapter = StockPagerAdapter(this)
         TabLayoutMediator(binding.tabs, binding.viewPager) { tab, pos ->
             tab.text = when (pos) {
-                0 -> "Chart"
-                1 -> "News"
-                2 -> "Summary"
-                3 -> "Recommendations"
+                CHART.ordinal -> App.applicationContext().getString(R.string.chart_tab_name)
+                NEWS.ordinal -> App.applicationContext().getString(R.string.news_tab_name)
+                SUMMARY.ordinal -> App.applicationContext().getString(R.string.summary_tab_name)
+                RECOMMENDATIONS.ordinal -> App.applicationContext().getString(R.string.recommendations_tab_name)
                 else -> throw IllegalArgumentException("Illegal tab number")
             }
         }.attach()
 
         binding.favBtnListener = FavBtnListener {
             stockItemViewModel.onFavouriteButtonClicked(it)
+        }
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            findNavController().navigate(R.id.action_searchFragment_to_stockListFragment)
         }
 
         return binding.root
@@ -65,4 +73,11 @@ class StockItemFragment : Fragment() {
         super.onDestroyView()
         stockItemViewModel.resetStockItemInformationInformation()
     }
+}
+
+enum class TabNames {
+    CHART,
+    NEWS,
+    SUMMARY,
+    RECOMMENDATIONS
 }

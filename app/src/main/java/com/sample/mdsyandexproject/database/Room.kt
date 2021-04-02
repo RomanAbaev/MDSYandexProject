@@ -130,10 +130,10 @@ fun getDatabase(): StockDatabase {
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         scope.launch {
                             try {
-                                Repository.instance.prepopulateData()
+                                Repository.prepopulateData()
                             } catch (ex: Exception) {
                                 ex.printStackTrace()
-                                Repository.instance.loadNextChunksException.postValue(
+                                Repository.loadNextChunksException.postValue(
                                     Pair(
                                         true,
                                         ex.message.toString()
@@ -149,10 +149,10 @@ fun getDatabase(): StockDatabase {
                             val count = INSTANCE.dao.getIndicesCount()
                             if (count == 0) {
                                 try {
-                                    Repository.instance.prepopulateData()
+                                    Repository.prepopulateData()
                                 } catch (ex: Exception) {
                                     ex.printStackTrace()
-                                    Repository.instance.loadNextChunksException.postValue(
+                                    Repository.loadNextChunksException.postValue(
                                         Pair(
                                             true,
                                             ex.message.toString()

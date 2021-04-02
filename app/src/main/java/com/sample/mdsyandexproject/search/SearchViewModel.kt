@@ -17,7 +17,7 @@ import kotlin.collections.set
 
 class SearchViewModel : ViewModel() {
 
-    private val repository = Repository.instance
+    private val repository = Repository
 
     private val _searchResultList = MutableLiveData<MutableList<StockItem>>()
     val searchResultList: LiveData<MutableList<StockItem>>

@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import com.sample.mdsyandexproject.App
+import com.sample.mdsyandexproject.R
 import com.sample.mdsyandexproject.domain.StockItem
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
@@ -24,23 +25,23 @@ fun isPreviousClosePriceValid(
     if (stockItem.previousClosePrice == null || stockItem.previousClosePriceDate == null) return false
     val previousClosePriceDate = DateTime(stockItem.previousClosePriceDate).toLocalDate()
     return when (currentDate.dayOfWeek) {
-        1 -> {
-            Days.daysBetween(previousClosePriceDate, currentDate).days <= 3
-        }
-        in 2..6 -> {
-            Days.daysBetween(previousClosePriceDate, currentDate).days <= 1
-        }
-        7 -> {
-            Days.daysBetween(previousClosePriceDate, currentDate).days <= 2
-        }
+        1 -> Days.daysBetween(previousClosePriceDate, currentDate).days <= 3
+        in 2..6 -> Days.daysBetween(previousClosePriceDate, currentDate).days <= 1
+        7 -> Days.daysBetween(previousClosePriceDate, currentDate).days <= 2
         else -> throw IllegalArgumentException("Illegal dayOfWeek parameter it should be from 1 to 7")
     }
 }
 
 fun isCurrentPriceValid(stockItem: StockItem): Boolean {
-    return (stockItem.currentPriceDate != null || stockItem.currentPrice != null)
-            && DateTime(stockItem.currentPriceDate).toLocalDate()
-        .isEqual(DateTime.now().toLocalDate())
+    return stockItem.isPriceExist() && stockItem.isCurrentPriceDateValid()
+}
+
+fun StockItem.isPriceExist(): Boolean {
+    return currentPriceDate != null || currentPrice != null
+}
+
+fun StockItem.isCurrentPriceDateValid(): Boolean {
+    return DateTime(currentPriceDate).toLocalDate().isEqual(DateTime.now().toLocalDate())
 }
 
 fun isCompanyInfoValid(stockItem: StockItem): Boolean {
@@ -54,9 +55,9 @@ fun convertDateToNewsFormat(date: Long): String {
 
 fun getReadableNetworkMessage(ex: HttpException): String {
     return when (ex.code()) {
-        403 -> "Permission denied"
-        429 -> "Your limit exceeded"
-        else -> "Something goes wrong"
+        403 -> App.applicationContext().getString(R.string.permission_denied_error)
+        429 -> App.applicationContext().getString(R.string.limit_exceeded_error)
+        else -> App.applicationContext().getString(R.string.common_error)
     }
 }
 
