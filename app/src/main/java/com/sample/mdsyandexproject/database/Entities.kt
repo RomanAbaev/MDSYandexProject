@@ -4,6 +4,9 @@ import androidx.room.*
 import com.sample.mdsyandexproject.domain.NewsItem
 import com.sample.mdsyandexproject.domain.RecommendationItem
 import com.sample.mdsyandexproject.domain.StockItem
+import com.sample.mdsyandexproject.network.CompanyProfile
+import com.sample.mdsyandexproject.network.Quote
+import org.joda.time.DateTime
 import java.util.*
 
 @Entity(indices = [Index(value = ["ticker"])])
@@ -101,7 +104,7 @@ data class QuoteAndCompanyProfileDb(
     val weburl: String? = null
 )
 
-data class CompanyProfile2Db(
+data class CompanyProfileDb(
     val ticker: String,
     val companyName: String,
     val logoUrl: String? = null,
@@ -147,8 +150,8 @@ class Converters {
     }
 }
 
-fun List<DatabaseStockItem>.asDomainModel(): List<StockItem> {
-    return map {
+fun List<DatabaseStockItem>.asDomainModel() =
+    map {
         StockItem(
             ticker = it.ticker,
             companyName = it.companyName,
@@ -169,11 +172,10 @@ fun List<DatabaseStockItem>.asDomainModel(): List<StockItem> {
             errorMessage = it.errorMessage,
         )
     }
-}
 
 @JvmName("asDomainModelNews")
-fun List<News>.asDomainModel(): List<NewsItem> {
-    return map {
+fun List<News>.asDomainModel() =
+    map {
         NewsItem(
             id = it.newsId,
             logo = it.image,
@@ -184,11 +186,10 @@ fun List<News>.asDomainModel(): List<NewsItem> {
             summary = it.summary
         )
     }
-}
 
 @JvmName("asDomainModelRecommendation")
-fun List<Recommendation>.asDomainModel(): List<RecommendationItem> {
-    return map {
+fun List<Recommendation>.asDomainModel() =
+    map {
         RecommendationItem(
             ticker = it.ticker,
             buy = it.buy,
@@ -199,4 +200,51 @@ fun List<Recommendation>.asDomainModel(): List<RecommendationItem> {
             period = it.period
         )
     }
-}
+
+fun createDatabaseStockItem(companyProfile: CompanyProfile, quote: Quote) =
+    DatabaseStockItem(
+        ticker = companyProfile.ticker,
+        companyName = companyProfile.name,
+        logoUrl = companyProfile.logo,
+        currency = companyProfile.currency,
+        country = companyProfile.country,
+        exchange = companyProfile.exchange,
+        ipo = companyProfile.ipo,
+        marketCapitalization = companyProfile.marketCapitalization,
+        phone = companyProfile.phone,
+        weburl = companyProfile.weburl,
+        currentPrice = quote.currentPrice,
+        currentPriceDate = DateTime.now().millis,
+        previousClosePrice = quote.previousClosePrice,
+        previousClosePriceDate = quote.timestamp?.times(1000L),
+        errorMessage = quote.errorMessage
+    )
+
+fun createQuoteDb(stockItem: StockItem, quote: Quote?) =
+    QuoteDb(
+        ticker = stockItem.ticker,
+        currentPrice = quote?.currentPrice,
+        currentPriceDate = DateTime.now().millis,
+        previousClosePrice = quote?.previousClosePrice,
+        previousClosePriceDate = quote?.timestamp?.times(1000L)
+    )
+
+fun createQuoteAndCompanyProfileDb(stockItem: StockItem, quote: Quote?, companyProfile: CompanyProfile) =
+    QuoteAndCompanyProfileDb(
+        ticker = stockItem.ticker,
+        currentPrice = quote?.currentPrice,
+        currentPriceDate = DateTime.now().millis,
+        previousClosePrice = quote?.previousClosePrice,
+        previousClosePriceDate = quote?.timestamp?.times(1000L),
+        error = quote?.errorCode,
+        errorMessage = quote?.errorMessage,
+        companyName = companyProfile.name,
+        logoUrl = companyProfile.logo,
+        currency = companyProfile.currency,
+        country = companyProfile.country,
+        exchange = companyProfile.exchange,
+        ipo = companyProfile.ipo,
+        marketCapitalization = companyProfile.marketCapitalization,
+        phone = companyProfile.phone,
+        weburl = companyProfile.weburl
+    )

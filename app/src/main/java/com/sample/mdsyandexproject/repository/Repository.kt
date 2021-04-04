@@ -16,7 +16,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import org.joda.time.DateTime
 import retrofit2.HttpException
 import java.net.SocketTimeoutException
 import java.util.concurrent.ConcurrentHashMap
@@ -46,16 +45,14 @@ object Repository {
     @ExperimentalCoroutinesApi
     suspend fun openSocketChannel() {
         try {
-            startSocket().consumeEach {
-                if (it.exception == null) {
-                    val updatedPrice = adapter.fromJson(requireNotNull(it.text))
-                    val data = updatedPrice?.data
-                    if (data != null) {
-                        this.database.updatePrices(data.asPrices())
+            startSocket().consumeEach { response ->
+                if (response.exception == null) {
+                    response.text?.let { text ->
+                        adapter.fromJson(text)?.data?.let { listData ->
+                            this.database.updatePrices(listData.asPrices())
+                        }
                     }
-                } else {
-                    onSocketError(it.exception)
-                }
+                } else onSocketError(response.exception)
             }
         } catch (ex: java.lang.Exception) {
             ex.printStackTrace()
@@ -83,16 +80,8 @@ object Repository {
     }
 
     fun getStockList(showFavouriteList: Boolean): LiveData<List<StockItem>> {
-        return when (showFavouriteList) {
-            true ->
-                Transformations.map(database.getFavouriteList()) {
-                    it.asDomainModel()
-                }
-            else ->
-                Transformations.map(database.getAll()) {
-                    it.asDomainModel()
-                }
-        }
+        return if (showFavouriteList) Transformations.map(database.getFavouriteList()) { it.asDomainModel() }
+        else Transformations.map(database.getAll()) { it.asDomainModel() }
     }
 
     @ExperimentalCoroutinesApi
@@ -144,97 +133,48 @@ object Repository {
             database.loadNextChunks(
                 stockList = spIndices.map {
                     delay(500)
-                    val cp =
-                        finnHubApi.getCompanyProfile(it.indices).await()
-                    val q =
-                        finnHubApi.getQuote(it.indices).await()
+                    val companyProfile = finnHubApi.getCompanyProfile(it.indices).await()
+                    val quote = finnHubApi.getQuote(it.indices).await()
                     stockItemLoadingProgress.postValue(stockItemLoadingProgress.value?.plus(1))
-                    DatabaseStockItem(
-                        ticker = cp.ticker,
-                        companyName = cp.name,
-                        logoUrl = cp.logo,
-                        currency = cp.currency,
-                        country = cp.country,
-                        exchange = cp.exchange,
-                        ipo = cp.ipo,
-                        marketCapitalization = cp.marketCapitalization,
-                        phone = cp.phone,
-                        weburl = cp.weburl,
-                        currentPrice = q.currentPrice,
-                        currentPriceDate = DateTime.now().millis,
-                        previousClosePrice = q.previousClosePrice,
-                        previousClosePriceDate = q.timestamp?.times(1000L),
-                        errorMessage = q.errorMessage
-                    )
+                    createDatabaseStockItem(companyProfile, quote)
                 },
                 spIndices = spIndices.map {
-                    SPIndices(
-                        indices = it.indices,
-                        isLoaded = true,
-                        symbol = it.symbol
-                    )
+                    SPIndices(it.indices, true, it.symbol)
                 }
             )
         }
     }
 
-    suspend fun updateQuoteAndCompanyProfile(stockItem: StockItem) {
+    suspend fun updateQuoteAndCompanyInfo(stockItem: StockItem) {
         if (!updateRequestQ.containsKey(stockItem.ticker)) {
             updateRequestQ[stockItem.ticker] = 0
             delay(1000)
-            var q: Quote? = null
-            var cp: CompanyProfile? = null;
+            var quote: Quote? = null
+            var companyProfile: CompanyProfile? = null;
             if (!isCompanyInfoValid(stockItem)) {
                 try {
-                    cp = finnHubApi.getCompanyProfile(stockItem.ticker).await()
+                    companyProfile = finnHubApi.getCompanyProfile(stockItem.ticker).await()
                 } catch (ex: Exception) {
                     ex.printStackTrace()
                 }
             }
             try {
-                q = finnHubApi.getQuote(stockItem.ticker).await()
+                quote = finnHubApi.getQuote(stockItem.ticker).await()
             } catch (ex: HttpException) {
-                q = Quote(
+                quote = Quote(
                     errorCode = ex.code().toString(),
                     errorMessage = if (ex.code()
                             .toString() != "403"
-                    ) ex.message() else "You don't have access to this resource"
+                    ) ex.message() else App.applicationContext().getString(R.string.permission_denied_error)
                 )
                 ex.printStackTrace()
             } catch (ex: Exception) {
                 ex.printStackTrace()
             }
 
-            when (cp) {
-                null -> database.updateQuote(
-                    QuoteDb(
-                        ticker = stockItem.ticker,
-                        currentPrice = q?.currentPrice,
-                        currentPriceDate = DateTime.now().millis,
-                        previousClosePrice = q?.previousClosePrice,
-                        previousClosePriceDate = q?.timestamp?.times(1000L)
-                    )
-                )
-                else -> database.updateQuoteAndCompanyProfile(
-                    QuoteAndCompanyProfileDb(
-                        ticker = stockItem.ticker,
-                        currentPrice = q?.currentPrice,
-                        currentPriceDate = DateTime.now().millis,
-                        previousClosePrice = q?.previousClosePrice,
-                        previousClosePriceDate = q?.timestamp?.times(1000L),
-                        error = q?.errorCode,
-                        errorMessage = q?.errorMessage,
-                        companyName = cp.name,
-                        logoUrl = cp.logo,
-                        currency = cp.currency,
-                        country = cp.country,
-                        exchange = cp.exchange,
-                        ipo = cp.ipo,
-                        marketCapitalization = cp.marketCapitalization,
-                        phone = cp.phone,
-                        weburl = cp.weburl
-                    )
-                )
+            when (companyProfile) {
+                null -> database.updateQuote(createQuoteDb(stockItem, quote))
+                else -> database.updateQuoteAndCompanyProfile(createQuoteAndCompanyProfileDb(stockItem, quote, companyProfile))
             }
             updateRequestQ.remove(stockItem.ticker)
         }
@@ -246,14 +186,7 @@ object Repository {
             updateFavouriteStock(stockItem)
         } else {
             stockItem.isFavourite = true
-            database.updateSPIndices(
-                listOf(
-                    SPIndices(
-                        indices = stockItem.ticker,
-                        isLoaded = true,
-                    )
-                )
-            )
+            database.updateSPIndices(listOf(SPIndices(stockItem.ticker, true)))
             database.insertStockItem(stockItem.asDatabaseModel())
         }
     }
@@ -290,47 +223,29 @@ object Repository {
 
         val resultListFromNetwork: MutableList<StockItem>? = stockItemListNetwork?.result?.map {
             delay(1000)
-            var q: Quote? = null
-            var cp: CompanyProfile? = null
+            var quote: Quote? = null
+            var companyProfile: CompanyProfile? = null
             try {
-                cp = finnHubApi.getCompanyProfile(it.symbol).await()
+                companyProfile = finnHubApi.getCompanyProfile(it.symbol).await()
             } catch (ex: Exception) {
                 ex.printStackTrace()
             }
 
             try {
-                q = finnHubApi.getQuote(it.symbol).await()
+                quote = finnHubApi.getQuote(it.symbol).await()
             } catch (ex: HttpException) {
-                q = Quote(
+                quote = Quote(
                     errorCode = ex.code().toString(),
-                    errorMessage = if (ex.code()
-                            .toString() != "403"
-                    ) ex.message() else "You don't have access to this resource"
+                    errorMessage = if (ex.code().toString() != "403") ex.message()
+                    else App.applicationContext().getString(R.string.permission_denied_error)
                 )
                 ex.printStackTrace()
             } catch (ex: Exception) {
                 ex.printStackTrace()
             }
 
-            if (cp != null) {
-                StockItem(
-                    ticker = it.symbol,
-                    companyName = cp.name,
-                    logoUrl = cp.logo,
-                    currency = cp.currency,
-                    currentPrice = q?.currentPrice,
-                    currentPriceDate = DateTime.now().millis,
-                    previousClosePrice = q?.previousClosePrice,
-                    previousClosePriceDate = q?.timestamp?.times(1000L),
-                    country = cp.country,
-                    exchange = cp.exchange,
-                    ipo = cp.ipo,
-                    marketCapitalization = cp.marketCapitalization,
-                    phone = cp.phone,
-                    weburl = cp.weburl,
-                    errorMessage = q?.errorMessage
-                )
-            } else null
+            if (companyProfile != null) createStockItem(it.symbol, companyProfile, quote)
+            else null
         }?.filterNotNull()?.toMutableList()
 
         return if (resultListFromNetwork != null) {
@@ -359,40 +274,29 @@ object Repository {
         }
     }
 
-    suspend fun loadNews(ticker: String, newsPage: Int)
-            : List<NewsItem>? {
+    suspend fun loadNews(ticker: String, newsPage: Int): List<NewsItem>? {
         return try {
             val fromAndToDate = getFromAndToDateForNews(newsPage)
             val startAndEndOfDate = getStartAndEndOfDayMillis(newsPage)
-            when (isNetworkAvailable()) {
-                true -> {
-                    // get todays news always from network
-                    if (newsPage == 0) {
-                        val news = loadNewsFromNetwork(ticker, fromAndToDate)
-                        val newsAndRefs = news.asDatabaseModel()
+            if (isNetworkAvailable()) {
+                // get today's news always from network
+                if (newsPage == 0) {
+                    val news = loadNewsFromNetwork(ticker, fromAndToDate)
+                    val newsAndRefs = news.asDatabaseModel()
+                    database.insertNews(newsAndRefs.first, newsAndRefs.second)
+                    return news.asDomainModel()
+                } else {
+                    val news = loadNewsFromDb(ticker, startAndEndOfDate.first, startAndEndOfDate.second)
+                    return if (news.isNotEmpty())
+                        news.asDomainModel()
+                    else {
+                        val newsNetwork = loadNewsFromNetwork(ticker, fromAndToDate)
+                        val newsAndRefs = newsNetwork.asDatabaseModel()
                         database.insertNews(newsAndRefs.first, newsAndRefs.second)
-                        return news.asDomainModel()
-                    } else {
-                        val news = loadNewsFromDb(
-                            ticker,
-                            startAndEndOfDate.first,
-                            startAndEndOfDate.second
-                        )
-                        return if (news.isNotEmpty())
-                            news.asDomainModel()
-                        else {
-                            val newsNetwork = loadNewsFromNetwork(ticker, fromAndToDate)
-                            val newsAndRefs = newsNetwork.asDatabaseModel()
-                            database.insertNews(newsAndRefs.first, newsAndRefs.second)
-                            newsNetwork.asDomainModel()
-                        }
+                        newsNetwork.asDomainModel()
                     }
                 }
-                false -> {
-                    val n = loadNewsFromDb(ticker, startAndEndOfDate.first, startAndEndOfDate.second).asDomainModel()
-                    return n
-                }
-            }
+            } else return loadNewsFromDb(ticker, startAndEndOfDate.first, startAndEndOfDate.second).asDomainModel()
         } catch (ex: HttpException) {
             ex.printStackTrace()
             loadNewsException.postValue(Pair(true, getReadableNetworkMessage(ex)))
@@ -404,10 +308,10 @@ object Repository {
         }
     }
 
-    suspend fun loadNewsFromDb(ticker: String, from: Long, to: Long) =
+    private suspend fun loadNewsFromDb(ticker: String, from: Long, to: Long) =
         database.getNews(ticker, from, to)
 
-    suspend fun loadNewsFromNetwork(ticker: String, fromAndToDate: String): List<NewsDto> =
+    private suspend fun loadNewsFromNetwork(ticker: String, fromAndToDate: String) =
         finnHubApi.loadNews(
             ticker,
             fromAndToDate,
@@ -430,9 +334,7 @@ object Repository {
 
     suspend fun updateRecommendations(ticker: String) {
         return try {
-            database.insertRecommendations(
-                finnHubApi.loadRecommendation(ticker = ticker).await().asDatabaseModel()
-            )
+            database.insertRecommendations(finnHubApi.loadRecommendation(ticker).await().asDatabaseModel())
         } catch (ex: HttpException) {
             ex.printStackTrace()
             updateRecommendationsException.postValue(Pair(true, getReadableNetworkMessage(ex)))

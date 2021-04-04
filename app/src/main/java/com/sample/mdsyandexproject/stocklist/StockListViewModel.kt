@@ -36,7 +36,7 @@ class StockListViewModel : ViewModel() {
 
     fun updateStockItemInformation(stockItem: StockItem) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.updateQuoteAndCompanyProfile(stockItem)
+            repository.updateQuoteAndCompanyInfo(stockItem)
         }
     }
 

@@ -4,6 +4,9 @@ import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
 import com.sample.mdsyandexproject.database.DatabaseStockItem
 import com.sample.mdsyandexproject.database.FavouriteDatabaseModel
+import com.sample.mdsyandexproject.network.CompanyProfile
+import com.sample.mdsyandexproject.network.Quote
+import org.joda.time.DateTime
 import java.io.Serializable
 
 data class StockItem(
@@ -53,15 +56,14 @@ data class RecommendationItem(
     val period: Long
 )
 
-fun StockItem.asFavouriteDatabaseModel(): FavouriteDatabaseModel {
-    return FavouriteDatabaseModel(
+fun StockItem.asFavouriteDatabaseModel() =
+    FavouriteDatabaseModel(
         ticker = this.ticker,
         isFavourite = this.isFavourite
     )
-}
 
-fun StockItem.asDatabaseModel(): DatabaseStockItem {
-    return DatabaseStockItem(
+fun StockItem.asDatabaseModel() =
+    DatabaseStockItem(
         ticker = this.ticker,
         companyName = this.companyName,
         logoUrl = this.logoUrl,
@@ -78,4 +80,22 @@ fun StockItem.asDatabaseModel(): DatabaseStockItem {
         phone = this.phone,
         weburl = this.weburl,
     )
-}
+
+fun createStockItem(ticker: String, companyProfile: CompanyProfile, quote: Quote?) =
+    StockItem(
+        ticker = ticker,
+        companyName = companyProfile.name,
+        logoUrl = companyProfile.logo,
+        currency = companyProfile.currency,
+        currentPrice = quote?.currentPrice,
+        currentPriceDate = DateTime.now().millis,
+        previousClosePrice = quote?.previousClosePrice,
+        previousClosePriceDate = quote?.timestamp?.times(1000L),
+        country = companyProfile.country,
+        exchange = companyProfile.exchange,
+        ipo = companyProfile.ipo,
+        marketCapitalization = companyProfile.marketCapitalization,
+        phone = companyProfile.phone,
+        weburl = companyProfile.weburl,
+        errorMessage = quote?.errorMessage
+    )

@@ -49,7 +49,7 @@ interface StockItemDao {
     suspend fun updateQuote(quote: QuoteDb)
 
     @Update(entity = DatabaseStockItem::class)
-    suspend fun updateCompanyProfile(companyProfile: CompanyProfile2Db)
+    suspend fun updateCompanyProfile(companyProfile: CompanyProfileDb)
 
     @Update(entity = DatabaseStockItem::class)
     suspend fun updateQuoteAndCompanyProfile(quoteAndCompanyProfile: QuoteAndCompanyProfileDb)
