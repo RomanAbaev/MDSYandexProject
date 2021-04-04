@@ -15,7 +15,7 @@ import com.github.mikephil.charting.data.CandleDataSet
 import com.google.android.material.snackbar.Snackbar
 import com.sample.mdsyandexproject.R
 import com.sample.mdsyandexproject.databinding.FragmentChartBinding
-import com.sample.mdsyandexproject.stockitem.CandleChartDataPeriods
+import com.sample.mdsyandexproject.stockitem.chart.CandleChartDataPeriods
 import com.sample.mdsyandexproject.stockitem.StockItemViewModel
 
 class ChartFragment : Fragment() {

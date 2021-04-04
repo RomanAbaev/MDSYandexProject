@@ -11,7 +11,7 @@ import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.sample.mdsyandexproject.domain.NewsItem
 import com.sample.mdsyandexproject.domain.StockItem
 import com.sample.mdsyandexproject.repository.Repository
-import com.sample.mdsyandexproject.stockitem.CandleChartDataPeriods.*
+import com.sample.mdsyandexproject.stockitem.chart.CandleChartDataPeriods.*
 import com.sample.mdsyandexproject.stockitem.recommendation.XAxisValueFormatter
 import com.sample.mdsyandexproject.utils.MMM_YY
 import com.sample.mdsyandexproject.utils.convertLongToDate
@@ -254,13 +254,4 @@ class StockItemViewModel : ViewModel() {
         val offset: Int = recommendationOffset.value ?: 0
         recommendationOffset.value = offset - recommendationLimit
     }
-}
-
-enum class CandleChartDataPeriods {
-    DAY,
-    WEEK,
-    MONTH,
-    SIX_MONTH,
-    ONE_YEAR,
-    ALL,
 }
