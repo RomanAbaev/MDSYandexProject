@@ -8,6 +8,7 @@
     <color name="dark_snippet_background">#F0F4F7</color>
     <color name="light_snippet_background">#FFFFFF</color>
 
+    <color name="prepopulate_background_color">#80DCDCDC</color>
 
     <color name="unselected_text">#BABABA</color>
     <color name="loading_color">#DADADA</color>

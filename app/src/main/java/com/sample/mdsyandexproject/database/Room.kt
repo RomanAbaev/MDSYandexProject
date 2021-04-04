@@ -42,6 +42,9 @@ interface StockItemDao {
     @Query("select COUNT(*) from SPIndices")
     suspend fun getIndicesCount(): Int
 
+    @Query("select COUNT(*) from DatabaseStockItem")
+    suspend fun getTotalItemCount(): Int
+
     @Update(entity = DatabaseStockItem::class)
     suspend fun updateQuote(quote: QuoteDb)
 
@@ -51,7 +54,7 @@ interface StockItemDao {
     @Update(entity = DatabaseStockItem::class)
     suspend fun updateQuoteAndCompanyProfile(quoteAndCompanyProfile: QuoteAndCompanyProfileDb)
 
-    @Update(entity = SPIndices::class)
+    @Update(entity = SPIndices::class, onConflict = OnConflictStrategy.REPLACE)
     suspend fun updateSPIndices(spIndices: List<SPIndices>)
 
     @Query("select * from DatabaseStockItem where ticker like :query OR companyName like :query")

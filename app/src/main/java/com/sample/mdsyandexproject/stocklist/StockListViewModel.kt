@@ -13,7 +13,9 @@ class StockListViewModel : ViewModel() {
 
     private val repository = Repository
 
-    var loading = MutableLiveData(false)
+    val isDataPrepopulating = repository.isDataPrepopulating
+    val stockItemLoadingProgress = repository.stockItemLoadingProgress
+    var stockItemLoading = repository.stockItemLoading
     val showFavouriteList = MutableLiveData(false)
 
     private var _stockList: LiveData<List<StockItem>> =
@@ -55,23 +57,17 @@ class StockListViewModel : ViewModel() {
 
     fun showList(list: String) {
         when (list) {
-            STOCKS -> {
-                showFavouriteList.value = false
-            }
-            FAVOURITES -> {
-                showFavouriteList.value = true
-            }
+            STOCKS -> showFavouriteList.value = false
+            FAVOURITES -> showFavouriteList.value = true
         }
     }
 
     fun loadNextChunks() {
         viewModelScope.launch {
-            if (loading.value == false) {
-                loading.value = true
+            if (stockItemLoading.value == false) {
                 withContext(Dispatchers.IO) {
                     repository.loadNextChunks()
                 }
-                loading.value = false
             }
         }
 

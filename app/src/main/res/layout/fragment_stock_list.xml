@@ -133,26 +133,50 @@
                 tools:listitem="@layout/stock_list_item_dark" />
         </LinearLayout>
 
-        <ProgressBar
-            android:id="@+id/rv_pb"
-            style="?android:attr/progressBarStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:background="@android:color/transparent"
-            android:visibility="gone"
-            app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior" />
-
         <com.google.android.material.progressindicator.LinearProgressIndicator
             android:id="@+id/linear_pb"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            app:indicatorColor="@color/black"
             android:layout_marginBottom="2dp"
             android:indeterminate="true"
-            android:visibility="gone" />
+            android:visibility="gone"
+            app:indicatorColor="@color/black" />
 
+        <FrameLayout
+            android:id="@+id/prepopulate_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/prepopulate_background_color"
+            android:visibility="visible">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="vertical">
+
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:id="@+id/pb"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    app:indicatorColor="@color/black" />
+
+                <TextView
+                    android:id="@+id/progress_persentage"
+                    style="@style/H3_text_style"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal" />
+
+                <TextView
+                    style="@style/H3_text_style"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loading_data_message" />
+            </LinearLayout>
+        </FrameLayout>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

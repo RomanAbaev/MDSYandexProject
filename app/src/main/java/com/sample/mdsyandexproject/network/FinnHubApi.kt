@@ -1,11 +1,9 @@
 package com.sample.mdsyandexproject.network
 
-import android.util.Log
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.Deferred
-import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -14,25 +12,25 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 private const val BASE_URL = "https://finnhub.io/api/v1/"
-private const val API_KEY = "c0t7r1748v6r4maem760"
+const val FINNHUB_API_KEY = "c0t7r1748v6r4maem760"
 
 interface FinnHubService {
-    @GET("index/constituents?symbol=^GSPC&token=c0t7r1748v6r4maem760")
+    @GET("index/constituents?symbol=^GSPC&token=$FINNHUB_API_KEY")
     fun getTop500Indices(): Deferred<IndicesList>
 
-    @GET("search?token=c0t7r1748v6r4maem760")
+    @GET("search?token=$FINNHUB_API_KEY")
     fun submitSearch(
         @Query("q") query: String
     ): Deferred<SearchResultResponse>
 
-    @GET("quote?token=c0t7r1748v6r4maem760")
+    @GET("quote?token=$FINNHUB_API_KEY")
     fun getQuote(@Query("symbol") ticker: String): Deferred<Quote>
 
     @GET("stock/profile2")
-    fun getCompanyProfile2(
+    fun getCompanyProfile(
         @Query("symbol") ticker: String,
-        @Query("token") token: String = "c0t7r1748v6r4maem760"
-    ): Deferred<CompanyProfile2>
+        @Query("token") token: String = FINNHUB_API_KEY
+    ): Deferred<CompanyProfile>
 
     @GET("stock/candle")
     fun loadCandleInfo(
@@ -40,7 +38,7 @@ interface FinnHubService {
         @Query("resolution") resolution: String = "1",
         @Query("from") from: Long,
         @Query("to") to: Long,
-        @Query("token") token: String = "c0t7r1748v6r4maem760"
+        @Query("token") token: String = FINNHUB_API_KEY
     ): Deferred<Candles>
 
     /**
@@ -52,13 +50,13 @@ interface FinnHubService {
         @Query("symbol") ticker: String,
         @Query("from") from: String,
         @Query("to") to: String,
-        @Query("token") token: String = "c0t7r1748v6r4maem760"
+        @Query("token") token: String = FINNHUB_API_KEY
     ): Deferred<List<NewsDto>>
 
     @GET("stock/recommendation?")
     fun loadRecommendation(
         @Query("symbol") ticker: String,
-        @Query("token") token: String = "c0t7r1748v6r4maem760"
+        @Query("token") token: String = FINNHUB_API_KEY
     ) : Deferred<List<RecommendationDto>>
 }
 
@@ -66,13 +64,8 @@ private val moshi = Moshi.Builder()
     .add(KotlinJsonAdapterFactory())
     .build()
 
+// TODO: add interceptor instead of explicitly adding token in every query
 private val okHttpClient = OkHttpClient().newBuilder()
-//    .addInterceptor(Interceptor { chain ->
-//        val request = chain.request()
-//        val url = request.url.newBuilder().addQueryParameter("token", API_KEY).build()
-//        request.newBuilder().url(url).build()
-//        chain.proceed(request)
-//    })
     .addInterceptor(HttpLoggingInterceptor().apply {
         this.level = HttpLoggingInterceptor.Level.BASIC
     })

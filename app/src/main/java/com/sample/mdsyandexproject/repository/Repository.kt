@@ -101,16 +101,17 @@ object Repository {
         openSocketChannel()
     }
 
+    val isDataPrepopulating = MutableLiveData(false)
+    val stockItemLoadingProgress = MutableLiveData(0)
+    val stockItemLoading = MutableLiveData(false)
+
     suspend fun loadNextChunks() {
         try {
-            if (database.getIndicesCount() == 0) {
-                prepopulateData()
-            } else {
-                val spIndices = database.getNextUnloadedIndices(limit)
-                if (spIndices.isNotEmpty()) {
-                    loadCompanyInfoAndQuote(spIndices)
-                }
-            }
+            if (!isPrepopulateNeeded()) {
+                stockItemLoading.postValue(true)
+                loadStockItems()
+                stockItemLoading.postValue(false)
+            } else prepopulateData()
         } catch (ex: HttpException) {
             ex.printStackTrace()
             loadNextChunksException.postValue(Pair(true, getReadableNetworkMessage(ex)))
@@ -120,20 +121,34 @@ object Repository {
         }
     }
 
+    private suspend fun isPrepopulateNeeded(): Boolean {
+        return database.getIndicesCount() == 0 || database.getTotalItemCount() == 0
+    }
+
+    private suspend fun loadStockItems() {
+        stockItemLoadingProgress.postValue(stockItemLoadingProgress.value?.plus(1))
+        val spIndices = database.getNextUnloadedIndices(limit)
+        if (spIndices.isNotEmpty()) loadCompanyInfoAndQuote(spIndices)
+    }
+
     suspend fun prepopulateData() {
+        isDataPrepopulating.postValue(true)
+        stockItemLoadingProgress.postValue(stockItemLoadingProgress.value?.plus(1))
         loadSPIndicesToDB()
-        loadNextChunks()
+        loadStockItems()
+        isDataPrepopulating.postValue(false)
     }
 
     private suspend fun loadCompanyInfoAndQuote(spIndices: List<SPIndices>) {
         withContext(Dispatchers.IO) {
             database.loadNextChunks(
                 stockList = spIndices.map {
-                    delay(1000)
+                    delay(500)
                     val cp =
-                        finnHubApi.getCompanyProfile2(it.indices).await()
+                        finnHubApi.getCompanyProfile(it.indices).await()
                     val q =
                         finnHubApi.getQuote(it.indices).await()
+                    stockItemLoadingProgress.postValue(stockItemLoadingProgress.value?.plus(1))
                     DatabaseStockItem(
                         ticker = cp.ticker,
                         companyName = cp.name,
@@ -168,10 +183,10 @@ object Repository {
             updateRequestQ[stockItem.ticker] = 0
             delay(1000)
             var q: Quote? = null
-            var cp: CompanyProfile2? = null;
+            var cp: CompanyProfile? = null;
             if (!isCompanyInfoValid(stockItem)) {
                 try {
-                    cp = finnHubApi.getCompanyProfile2(stockItem.ticker).await()
+                    cp = finnHubApi.getCompanyProfile(stockItem.ticker).await()
                 } catch (ex: Exception) {
                     ex.printStackTrace()
                 }
@@ -276,9 +291,9 @@ object Repository {
         val resultListFromNetwork: MutableList<StockItem>? = stockItemListNetwork?.result?.map {
             delay(1000)
             var q: Quote? = null
-            var cp: CompanyProfile2? = null
+            var cp: CompanyProfile? = null
             try {
-                cp = finnHubApi.getCompanyProfile2(it.symbol).await()
+                cp = finnHubApi.getCompanyProfile(it.symbol).await()
             } catch (ex: Exception) {
                 ex.printStackTrace()
             }

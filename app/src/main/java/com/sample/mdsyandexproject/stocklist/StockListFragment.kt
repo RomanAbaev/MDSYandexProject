@@ -17,6 +17,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.sample.mdsyandexproject.R
 import com.sample.mdsyandexproject.databinding.FragmentStockListBinding
 import com.sample.mdsyandexproject.domain.StockItem
+import com.sample.mdsyandexproject.repository.limit
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 
@@ -71,7 +72,7 @@ class StockListFragment : Fragment() {
                 }
             })
 
-        stockListViewModel.loading.observe(viewLifecycleOwner, { isLoading ->
+        stockListViewModel.stockItemLoading.observe(viewLifecycleOwner, { isLoading ->
             when (isLoading) {
                 true -> {
                     binding.linearPb.visibility = View.VISIBLE
@@ -85,11 +86,8 @@ class StockListFragment : Fragment() {
         stockListViewModel.stockList.observe(viewLifecycleOwner, {
             it?.let { stockList ->
                 lifecycleScope.launch {
-                    if (stockList.isEmpty() && stockListViewModel.showFavouriteList.value == false) {
+                    if (stockList.isEmpty() && stockListViewModel.showFavouriteList.value == false)
                         stockListViewModel.loadNextChunks()
-                        binding.rvPb.visibility = View.VISIBLE
-                    }
-                    else binding.rvPb.visibility = View.GONE
                     adapter.submitList(stockList)
                 }
             }
@@ -151,6 +149,26 @@ class StockListFragment : Fragment() {
                 }
             }
         )
+
+        stockListViewModel.isDataPrepopulating.observe(viewLifecycleOwner, {
+            if (it) binding.prepopulateView.visibility = View.VISIBLE
+            else binding.prepopulateView.visibility = View.GONE
+        })
+
+        binding.prepopulateView.setOnTouchListener { _, _ -> true }
+
+        binding.pb.isIndeterminate = false
+        binding.pb.min = 0
+        binding.pb.max = limit + 2
+        binding.pb.progress = 0
+
+        stockListViewModel.stockItemLoadingProgress.observe(viewLifecycleOwner, {
+            it?.let {
+                binding.pb.progress += 1
+                binding.progressPersentage.text = getString(R.string.loading_data_percentage, 100 * binding.pb.progress / binding.pb.max)
+            }
+        })
+
         return binding.root
     }
 

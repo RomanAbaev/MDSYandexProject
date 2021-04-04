@@ -9,7 +9,7 @@ import com.squareup.moshi.FromJson
 import com.squareup.moshi.Json
 import com.squareup.moshi.ToJson
 
-data class CompanyProfile2(
+data class CompanyProfile(
     val ticker: String,
     val name: String,
     val currency: String,

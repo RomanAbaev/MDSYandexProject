@@ -45,4 +45,6 @@
     <string name="limit_exceeded_error">Your limit exceeded</string>
     <string name="common_error">Something goes wrong</string>
     <string name="chart_period_info_message">This period is available only in premium account</string>
+    <string name="loading_data_message">Data is loading please wait…</string>
+    <string name="loading_data_percentage">%1$d%%</string>
 </resources>
