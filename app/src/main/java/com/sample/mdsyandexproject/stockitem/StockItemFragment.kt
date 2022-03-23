@@ -16,8 +16,12 @@ import com.sample.mdsyandexproject.databinding.FragmentStockItemBinding
 import com.sample.mdsyandexproject.stockitem.StockItemFragmentArgs.fromBundle
 import com.sample.mdsyandexproject.stockitem.TabNames.*
 import com.sample.mdsyandexproject.stocklist.FavBtnListener
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 
+@ExperimentalCoroutinesApi
+@DelicateCoroutinesApi
 class StockItemFragment : Fragment() {
 
     private val stockItemViewModel by activityViewModels<StockItemViewModel>()

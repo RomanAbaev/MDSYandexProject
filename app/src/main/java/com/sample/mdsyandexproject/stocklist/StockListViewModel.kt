@@ -3,11 +3,9 @@ package com.sample.mdsyandexproject.stocklist
 import androidx.lifecycle.*
 import com.sample.mdsyandexproject.domain.StockItem
 import com.sample.mdsyandexproject.repository.Repository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 
+@DelicateCoroutinesApi
 @ExperimentalCoroutinesApi
 class StockListViewModel : ViewModel() {
 
@@ -77,7 +75,6 @@ class StockListViewModel : ViewModel() {
         repository.loadNextChunksException.value = Pair(false, "")
     }
 
-    @ExperimentalCoroutinesApi
     override fun onCleared() {
         repository.closeSocket()
         super.onCleared()

@@ -17,7 +17,11 @@ import com.sample.mdsyandexproject.R
 import com.sample.mdsyandexproject.databinding.FragmentChartBinding
 import com.sample.mdsyandexproject.stockitem.chart.CandleChartDataPeriods
 import com.sample.mdsyandexproject.stockitem.StockItemViewModel
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+@ExperimentalCoroutinesApi
+@DelicateCoroutinesApi
 class ChartFragment : Fragment() {
 
     var checkedPeriod: Int = -1
@@ -43,7 +47,7 @@ class ChartFragment : Fragment() {
             stockItemViewModel.onCandlePeriodClick(it)
         }
 
-        stockItemViewModel.checkedPeriod.observe(viewLifecycleOwner, { period ->
+        stockItemViewModel.checkedPeriod.observe(viewLifecycleOwner) { period ->
             if (checkedPeriod != -1) {
                 val v = binding.chartButtonGroup.getChildAt(checkedPeriod) as TextView
                 v.setBackgroundResource(R.drawable.shape_chart_btn_unselected)
@@ -58,9 +62,9 @@ class ChartFragment : Fragment() {
                 CandleChartDataPeriods.SIX_MONTH.ordinal -> selectChartBtn(binding.sixMonth)
                 CandleChartDataPeriods.ONE_YEAR.ordinal -> selectChartBtn(binding.year)
             }
-        })
+        }
 
-        stockItemViewModel.chartLoading.observe(viewLifecycleOwner, { isLoading ->
+        stockItemViewModel.chartLoading.observe(viewLifecycleOwner) { isLoading ->
             when (isLoading) {
                 true -> {
                     binding.chart.visibility = View.GONE
@@ -71,11 +75,11 @@ class ChartFragment : Fragment() {
                     binding.chart.visibility = View.VISIBLE
                 }
             }
-        })
+        }
 
         stockItemViewModel.onCandlePeriodClick(CandleChartDataPeriods.ALL.ordinal)
 
-        stockItemViewModel.candlesData.observe(viewLifecycleOwner, {
+        stockItemViewModel.candlesData.observe(viewLifecycleOwner) {
             if (it.isNotEmpty()) {
                 val cds = CandleDataSet(it, "")
                 cds.color = Color.rgb(80, 80, 80)
@@ -91,24 +95,23 @@ class ChartFragment : Fragment() {
                 binding.chart.data = cd
                 binding.chart.invalidate()
             }
-        })
+        }
 
-        stockItemViewModel.loadCandleInfoException.observe(viewLifecycleOwner,
-            {
-                when (it.first) {
-                    true -> {
-                        Snackbar.make(
-                            binding.root,
-                            it.second,
-                            Snackbar.LENGTH_INDEFINITE
-                        ).setAction(getString(R.string.try_again)) {
-                            stockItemViewModel.onTriedAgainLoadCandlesBtnClick()
-                            stockItemViewModel.onCandlePeriodClick(checkedPeriod)
-                        }.show()
-                    }
+        stockItemViewModel.loadCandleInfoException.observe(viewLifecycleOwner) {
+            when (it.first) {
+                true -> {
+                    Snackbar.make(
+                        binding.root,
+                        it.second,
+                        Snackbar.LENGTH_INDEFINITE
+                    ).setAction(getString(R.string.try_again)) {
+                        stockItemViewModel.onTriedAgainLoadCandlesBtnClick()
+                        stockItemViewModel.onCandlePeriodClick(checkedPeriod)
+                    }.show()
                 }
+                false -> { /* to do nothing */ }
             }
-        )
+        }
 
         return binding.root
     }

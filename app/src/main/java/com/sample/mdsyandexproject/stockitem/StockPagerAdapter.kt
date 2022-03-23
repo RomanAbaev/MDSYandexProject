@@ -7,7 +7,11 @@ import com.sample.mdsyandexproject.stockitem.news.NewsFragment
 import com.sample.mdsyandexproject.stockitem.pager_screens.ChartFragment
 import com.sample.mdsyandexproject.stockitem.recommendation.RecommendationsFragment
 import com.sample.mdsyandexproject.stockitem.summary.SummaryFragment
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+@DelicateCoroutinesApi
+@ExperimentalCoroutinesApi
 class StockPagerAdapter(fragment: StockItemFragment) : FragmentStateAdapter(fragment) {
     override fun getItemCount(): Int = 4
 

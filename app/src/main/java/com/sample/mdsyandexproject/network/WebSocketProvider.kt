@@ -1,5 +1,6 @@
 package com.sample.mdsyandexproject.network
 
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import okhttp3.OkHttpClient
@@ -7,8 +8,10 @@ import okhttp3.Request
 import okhttp3.WebSocket
 import java.util.concurrent.TimeUnit
 
+@DelicateCoroutinesApi
+@ExperimentalCoroutinesApi
 class WebSocketProvider {
-     var webSocket: WebSocket? = null
+    var webSocket: WebSocket? = null
 
     private val socketOkHttpClient = OkHttpClient.Builder()
 //        .readTimeout(1, TimeUnit.MINUTES)
@@ -17,10 +20,10 @@ class WebSocketProvider {
         .hostnameVerifier { _, _ -> true }
         .build()
 
-    @ExperimentalCoroutinesApi
+
     private var webSocketListener: FinnHubWebSocketListener? = null
 
-    @ExperimentalCoroutinesApi
+
     fun startSocket(): Channel<SocketResponse> =
         with(FinnHubWebSocketListener()) {
             startSocket(this)
@@ -28,7 +31,6 @@ class WebSocketProvider {
         }
 
 
-    @ExperimentalCoroutinesApi
     fun startSocket(webSocketListener: FinnHubWebSocketListener) {
         this.webSocketListener = webSocketListener
         webSocket = socketOkHttpClient.newWebSocket(
@@ -38,7 +40,7 @@ class WebSocketProvider {
         socketOkHttpClient.dispatcher.executorService.shutdown()
     }
 
-    @ExperimentalCoroutinesApi
+
     fun closeSocket() {
         try {
             webSocket?.close(NORMAL_CLOSURE_STATUS, null)

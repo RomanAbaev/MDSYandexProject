@@ -16,8 +16,12 @@ import com.sample.mdsyandexproject.R
 import com.sample.mdsyandexproject.databinding.FragmentNewsBinding
 import com.sample.mdsyandexproject.stockitem.StockItemViewModel
 import com.sample.mdsyandexproject.stocklist.EndlessRecyclerViewScrollListener
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 
+@ExperimentalCoroutinesApi
+@DelicateCoroutinesApi
 class NewsFragment : Fragment() {
 
     override fun onCreateView(
@@ -77,8 +81,8 @@ class NewsFragment : Fragment() {
             }
         }
 
-        stockItemViewModel.loadNews() // init load news when
-        stockItemViewModel.news.observe(viewLifecycleOwner, {
+        stockItemViewModel.loadNews()
+        stockItemViewModel.news.observe(viewLifecycleOwner) {
             it?.let { news ->
                 lifecycleScope.launch {
                     if (news.isEmpty()) binding.rvPb.visibility = View.VISIBLE
@@ -87,24 +91,23 @@ class NewsFragment : Fragment() {
                     adapter.notifyDataSetChanged()
                 }
             }
-        })
+        }
 
-        stockItemViewModel.loadNewsException.observe(viewLifecycleOwner,
-            {
-                when (it.first) {
-                    true -> {
-                        Snackbar.make(
-                            binding.root,
-                            it.second,
-                            Snackbar.LENGTH_INDEFINITE
-                        ).setAction(getString(R.string.try_again)) {
-                            stockItemViewModel.onTriedAgainLoadNewsBtnClick()
-                            stockItemViewModel.loadNews()
-                        }.show()
-                    }
+        stockItemViewModel.loadNewsException.observe(viewLifecycleOwner) {
+            when (it.first) {
+                true -> {
+                    Snackbar.make(
+                        binding.root,
+                        it.second,
+                        Snackbar.LENGTH_INDEFINITE
+                    ).setAction(getString(R.string.try_again)) {
+                        stockItemViewModel.onTriedAgainLoadNewsBtnClick()
+                        stockItemViewModel.loadNews()
+                    }.show()
                 }
+                false -> { /* to do nothing */ }
             }
-        )
+        }
 
 
         return binding.root

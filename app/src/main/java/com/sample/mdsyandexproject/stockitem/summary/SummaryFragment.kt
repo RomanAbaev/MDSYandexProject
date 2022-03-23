@@ -13,7 +13,11 @@ import androidx.fragment.app.activityViewModels
 import com.sample.mdsyandexproject.R
 import com.sample.mdsyandexproject.databinding.FragmentSummaryBinding
 import com.sample.mdsyandexproject.stockitem.StockItemViewModel
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+@ExperimentalCoroutinesApi
+@DelicateCoroutinesApi
 class SummaryFragment: Fragment() {
 
     override fun onCreateView(

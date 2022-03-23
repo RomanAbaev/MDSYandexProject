@@ -15,11 +15,11 @@ import com.sample.mdsyandexproject.stockitem.chart.CandleChartDataPeriods.*
 import com.sample.mdsyandexproject.stockitem.recommendation.XAxisValueFormatter
 import com.sample.mdsyandexproject.utils.MMM_YY
 import com.sample.mdsyandexproject.utils.convertLongToDate
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.joda.time.DateTime
 
+@DelicateCoroutinesApi
+@ExperimentalCoroutinesApi
 class StockItemViewModel : ViewModel() {
 
     private val repository = Repository

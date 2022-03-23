@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.sample.mdsyandexproject">
 
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <uses-feature android:name="android.hardware.screen.portrait"/>
 
     <application
         android:name=".App"
@@ -14,7 +17,9 @@
         android:theme="@style/Theme.MDSYandexProject">
         <activity
             android:name=".MainActivity"
-            android:screenOrientation="portrait">
+            android:exported="true"
+            android:screenOrientation="userPortrait"
+            tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

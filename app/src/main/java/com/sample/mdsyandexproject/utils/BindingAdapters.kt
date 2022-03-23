@@ -46,7 +46,7 @@ fun ImageView.bindImage(imgUrl: String?) {
                 RequestOptions()
                     .placeholder(R.drawable.loading_animation)
                     .error(R.drawable.ic_broken_image)
-                    .transforms(RoundedCorners(24))
+                    .transform(RoundedCorners(24))
             )
             .into(this)
     }

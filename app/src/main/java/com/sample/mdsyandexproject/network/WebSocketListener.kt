@@ -1,6 +1,6 @@
 package com.sample.mdsyandexproject.network
 
-import android.util.Log
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
@@ -11,13 +11,18 @@ import okhttp3.WebSocketListener
 import okio.ByteString
 
 @ExperimentalCoroutinesApi
+@DelicateCoroutinesApi
 class FinnHubWebSocketListener : WebSocketListener() {
 
     val socketEventChannel: Channel<SocketResponse> = Channel(10)
 
     override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
         GlobalScope.launch {
-            if (!socketEventChannel.isClosedForSend) socketEventChannel.send(SocketResponse(exception = SocketAbortedException()))
+            if (!socketEventChannel.isClosedForSend) socketEventChannel.send(
+                SocketResponse(
+                    exception = SocketAbortedException()
+                )
+            )
         }
         webSocket.close(666, "close from closing")
         socketEventChannel.close()
@@ -25,7 +30,11 @@ class FinnHubWebSocketListener : WebSocketListener() {
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
         GlobalScope.launch {
-            if (!socketEventChannel.isClosedForSend) socketEventChannel.send(SocketResponse(exception = t))
+            if (!socketEventChannel.isClosedForSend) socketEventChannel.send(
+                SocketResponse(
+                    exception = t
+                )
+            )
         }
     }
 

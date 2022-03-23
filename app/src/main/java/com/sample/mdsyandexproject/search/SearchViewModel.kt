@@ -6,15 +6,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sample.mdsyandexproject.domain.StockItem
 import com.sample.mdsyandexproject.repository.Repository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.collections.List
 import kotlin.collections.MutableList
 import kotlin.collections.listOf
 import kotlin.collections.set
 
+@DelicateCoroutinesApi
+@ExperimentalCoroutinesApi
 class SearchViewModel : ViewModel() {
 
     private val repository = Repository

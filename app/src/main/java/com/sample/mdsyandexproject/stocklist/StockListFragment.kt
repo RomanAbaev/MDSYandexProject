@@ -18,10 +18,12 @@ import com.sample.mdsyandexproject.R
 import com.sample.mdsyandexproject.databinding.FragmentStockListBinding
 import com.sample.mdsyandexproject.domain.StockItem
 import com.sample.mdsyandexproject.repository.limit
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 
 @ExperimentalCoroutinesApi
+@DelicateCoroutinesApi
 class StockListFragment : Fragment() {
 
     lateinit var binding: FragmentStockListBinding
@@ -72,7 +74,7 @@ class StockListFragment : Fragment() {
                 }
             })
 
-        stockListViewModel.stockItemLoading.observe(viewLifecycleOwner, { isLoading ->
+        stockListViewModel.stockItemLoading.observe(viewLifecycleOwner) { isLoading ->
             when (isLoading) {
                 true -> {
                     binding.linearPb.visibility = View.VISIBLE
@@ -81,9 +83,9 @@ class StockListFragment : Fragment() {
                     binding.linearPb.visibility = View.GONE
                 }
             }
-        })
+        }
 
-        stockListViewModel.stockList.observe(viewLifecycleOwner, {
+        stockListViewModel.stockList.observe(viewLifecycleOwner) {
             it?.let { stockList ->
                 lifecycleScope.launch {
                     if (stockList.isEmpty() && stockListViewModel.showFavouriteList.value == false)
@@ -91,7 +93,7 @@ class StockListFragment : Fragment() {
                     adapter.submitList(stockList)
                 }
             }
-        })
+        }
 
         val navigateToSearchFragment = OnTouchListener { _, event ->
             when (event.action) {
@@ -111,49 +113,47 @@ class StockListFragment : Fragment() {
         //  надо изучить вопрос позже глубже и убедиться в этом
         //  https://stackoverflow.com/questions/31980342/android-data-binding-style
         //  https://code.google.com/archive/p/android-developer-preview/issues/2613
-        stockListViewModel.showFavouriteList.observe(viewLifecycleOwner,
-            { show ->
-                when {
-                    show -> {
-                        binding.stocksMenuTitle.visibility = View.GONE
-                        binding.favouriteMenuTitleUnselected.visibility = View.GONE
-                        binding.stocksMenuTitleUnselected.visibility = View.VISIBLE
-                        binding.favouriteMenuTitle.visibility = View.VISIBLE
-                        binding.stockList.scrollToPosition(0)
-                    }
-                    else -> {
-                        binding.stocksMenuTitle.visibility = View.VISIBLE
-                        binding.favouriteMenuTitleUnselected.visibility = View.VISIBLE
-                        binding.stocksMenuTitleUnselected.visibility = View.GONE
-                        binding.favouriteMenuTitle.visibility = View.GONE
-                        binding.stockList.scrollToPosition(0)
-                    }
+        stockListViewModel.showFavouriteList.observe(viewLifecycleOwner) { show ->
+            when {
+                show -> {
+                    binding.stocksMenuTitle.visibility = View.GONE
+                    binding.favouriteMenuTitleUnselected.visibility = View.GONE
+                    binding.stocksMenuTitleUnselected.visibility = View.VISIBLE
+                    binding.favouriteMenuTitle.visibility = View.VISIBLE
+                    binding.stockList.scrollToPosition(0)
+                }
+                else -> {
+                    binding.stocksMenuTitle.visibility = View.VISIBLE
+                    binding.favouriteMenuTitleUnselected.visibility = View.VISIBLE
+                    binding.stocksMenuTitleUnselected.visibility = View.GONE
+                    binding.favouriteMenuTitle.visibility = View.GONE
+                    binding.stockList.scrollToPosition(0)
                 }
             }
-        )
+        }
 
-        stockListViewModel.loadNextChunksException.observe(viewLifecycleOwner,
-            {
-                when (it.first) {
-                    true -> {
-                        // show snackbar with message and try button with callback = loadNextChunks()
-                        Snackbar.make(
-                            binding.root,
-                            it.second,
-                            Snackbar.LENGTH_INDEFINITE
-                        ).setAction(getString(R.string.try_again)) {
-                            stockListViewModel.onTriedAgainBtnClick()
-                            stockListViewModel.loadNextChunks()
-                        }.show()
-                    }
+        stockListViewModel.loadNextChunksException.observe(viewLifecycleOwner) {
+            when (it.first) {
+                true -> {
+                    // show snackbar with message and try button with callback = loadNextChunks()
+                    Snackbar.make(
+                        binding.root,
+                        it.second,
+                        Snackbar.LENGTH_INDEFINITE
+                    ).setAction(getString(R.string.try_again)) {
+                        stockListViewModel.onTriedAgainBtnClick()
+                        stockListViewModel.loadNextChunks()
+                    }.show()
+                }
+                false -> { /* todo nothing */
                 }
             }
-        )
+        }
 
-        stockListViewModel.isDataPrepopulating.observe(viewLifecycleOwner, {
+        stockListViewModel.isDataPrepopulating.observe(viewLifecycleOwner) {
             if (it) binding.prepopulateView.visibility = View.VISIBLE
             else binding.prepopulateView.visibility = View.GONE
-        })
+        }
 
         binding.prepopulateView.setOnTouchListener { _, _ -> true }
 
@@ -162,12 +162,15 @@ class StockListFragment : Fragment() {
         binding.pb.max = limit + 2
         binding.pb.progress = 0
 
-        stockListViewModel.stockItemLoadingProgress.observe(viewLifecycleOwner, {
+        stockListViewModel.stockItemLoadingProgress.observe(viewLifecycleOwner) {
             it?.let {
                 binding.pb.progress += 1
-                binding.progressPersentage.text = getString(R.string.loading_data_percentage, 100 * binding.pb.progress / binding.pb.max)
+                binding.progressPersentage.text = getString(
+                    R.string.loading_data_percentage,
+                    100 * binding.pb.progress / binding.pb.max
+                )
             }
-        })
+        }
 
         return binding.root
     }

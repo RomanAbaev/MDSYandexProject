@@ -10,16 +10,15 @@ import com.sample.mdsyandexproject.domain.*
 import com.sample.mdsyandexproject.network.*
 import com.sample.mdsyandexproject.utils.*
 import com.squareup.moshi.Moshi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import java.net.SocketTimeoutException
 import java.util.concurrent.ConcurrentHashMap
 
+@ExperimentalCoroutinesApi
+@DelicateCoroutinesApi
 object Repository {
 
     private val database = getDatabase().dao
@@ -42,7 +41,6 @@ object Repository {
         .build()
     private val adapter = moshi.adapter(UpdatePrices::class.java)
 
-    @ExperimentalCoroutinesApi
     suspend fun openSocketChannel() {
         try {
             startSocket().consumeEach { response ->
@@ -84,7 +82,7 @@ object Repository {
         else Transformations.map(database.getAll()) { it.asDomainModel() }
     }
 
-    @ExperimentalCoroutinesApi
+
     suspend fun refreshData() {
         webSocketProvider = WebSocketProvider()
         openSocketChannel()
@@ -106,7 +104,12 @@ object Repository {
             loadNextChunksException.postValue(Pair(true, getReadableNetworkMessage(ex)))
         } catch (ex: Exception) {
             ex.printStackTrace()
-            loadNextChunksException.postValue(Pair(true, App.applicationContext().getString(R.string.common_error)))
+            loadNextChunksException.postValue(
+                Pair(
+                    true,
+                    App.applicationContext().getString(R.string.common_error)
+                )
+            )
         }
     }
 
@@ -150,7 +153,7 @@ object Repository {
             updateRequestQ[stockItem.ticker] = 0
             delay(1000)
             var quote: Quote? = null
-            var companyProfile: CompanyProfile? = null;
+            var companyProfile: CompanyProfile? = null
             if (!isCompanyInfoValid(stockItem)) {
                 try {
                     companyProfile = finnHubApi.getCompanyProfile(stockItem.ticker).await()
@@ -165,7 +168,8 @@ object Repository {
                     errorCode = ex.code().toString(),
                     errorMessage = if (ex.code()
                             .toString() != "403"
-                    ) ex.message() else App.applicationContext().getString(R.string.permission_denied_error)
+                    ) ex.message() else App.applicationContext()
+                        .getString(R.string.permission_denied_error)
                 )
                 ex.printStackTrace()
             } catch (ex: Exception) {
@@ -174,7 +178,13 @@ object Repository {
 
             when (companyProfile) {
                 null -> database.updateQuote(createQuoteDb(stockItem, quote))
-                else -> database.updateQuoteAndCompanyProfile(createQuoteAndCompanyProfileDb(stockItem, quote, companyProfile))
+                else -> database.updateQuoteAndCompanyProfile(
+                    createQuoteAndCompanyProfileDb(
+                        stockItem,
+                        quote,
+                        companyProfile
+                    )
+                )
             }
             updateRequestQ.remove(stockItem.ticker)
         }
@@ -195,7 +205,7 @@ object Repository {
         database.updateFavouriteStock(stockItem.asFavouriteDatabaseModel())
     }
 
-    suspend fun loadSPIndicesToDB() {
+    private suspend fun loadSPIndicesToDB() {
         try {
             val spIndices = finnHubApi.getTop500Indices().await().asDatabaseModel()
             database.insertAllSPIndices(spIndices)
@@ -218,7 +228,12 @@ object Repository {
             submitSearchException.postValue(Pair(true, getReadableNetworkMessage(ex)))
         } catch (ex: Exception) {
             ex.printStackTrace()
-            submitSearchException.postValue(Pair(true, App.applicationContext().getString(R.string.common_error)))
+            submitSearchException.postValue(
+                Pair(
+                    true,
+                    App.applicationContext().getString(R.string.common_error)
+                )
+            )
         }
 
         val resultListFromNetwork: MutableList<StockItem>? = stockItemListNetwork?.result?.map {
@@ -269,7 +284,12 @@ object Repository {
             null
         } catch (ex: Exception) {
             ex.printStackTrace()
-            loadCandleInfoException.postValue(Pair(true, App.applicationContext().getString(R.string.common_error)))
+            loadCandleInfoException.postValue(
+                Pair(
+                    true,
+                    App.applicationContext().getString(R.string.common_error)
+                )
+            )
             null
         }
     }
@@ -286,7 +306,8 @@ object Repository {
                     database.insertNews(newsAndRefs.first, newsAndRefs.second)
                     return news.asDomainModel()
                 } else {
-                    val news = loadNewsFromDb(ticker, startAndEndOfDate.first, startAndEndOfDate.second)
+                    val news =
+                        loadNewsFromDb(ticker, startAndEndOfDate.first, startAndEndOfDate.second)
                     return if (news.isNotEmpty())
                         news.asDomainModel()
                     else {
@@ -296,14 +317,23 @@ object Repository {
                         newsNetwork.asDomainModel()
                     }
                 }
-            } else return loadNewsFromDb(ticker, startAndEndOfDate.first, startAndEndOfDate.second).asDomainModel()
+            } else return loadNewsFromDb(
+                ticker,
+                startAndEndOfDate.first,
+                startAndEndOfDate.second
+            ).asDomainModel()
         } catch (ex: HttpException) {
             ex.printStackTrace()
             loadNewsException.postValue(Pair(true, getReadableNetworkMessage(ex)))
             null
         } catch (ex: Exception) {
             ex.printStackTrace()
-            loadNewsException.postValue(Pair(true, App.applicationContext().getString(R.string.common_error)))
+            loadNewsException.postValue(
+                Pair(
+                    true,
+                    App.applicationContext().getString(R.string.common_error)
+                )
+            )
             null
         }
     }
@@ -334,21 +364,28 @@ object Repository {
 
     suspend fun updateRecommendations(ticker: String) {
         return try {
-            database.insertRecommendations(finnHubApi.loadRecommendation(ticker).await().asDatabaseModel())
+            database.insertRecommendations(
+                finnHubApi.loadRecommendation(ticker).await().asDatabaseModel()
+            )
         } catch (ex: HttpException) {
             ex.printStackTrace()
             updateRecommendationsException.postValue(Pair(true, getReadableNetworkMessage(ex)))
         } catch (ex: Exception) {
             ex.printStackTrace()
-            updateRecommendationsException.postValue(Pair(true, App.applicationContext().getString(R.string.common_error)))
+            updateRecommendationsException.postValue(
+                Pair(
+                    true,
+                    App.applicationContext().getString(R.string.common_error)
+                )
+            )
         }
     }
 
-    @ExperimentalCoroutinesApi
+
     fun startSocket(): Channel<SocketResponse> =
         webSocketProvider.startSocket()
 
-    @ExperimentalCoroutinesApi
+
     fun closeSocket() {
         webSocketProvider.closeSocket()
     }

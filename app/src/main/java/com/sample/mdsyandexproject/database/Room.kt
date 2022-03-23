@@ -5,9 +5,7 @@ import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.sample.mdsyandexproject.App
 import com.sample.mdsyandexproject.repository.Repository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 @Dao
 interface StockItemDao {
@@ -120,6 +118,8 @@ private lateinit var INSTANCE: StockDatabase
 
 private val scope = CoroutineScope(Dispatchers.IO)
 
+@DelicateCoroutinesApi
+@ExperimentalCoroutinesApi
 fun getDatabase(): StockDatabase {
     synchronized(StockDatabase::class.java) {
         if (!::INSTANCE.isInitialized) {

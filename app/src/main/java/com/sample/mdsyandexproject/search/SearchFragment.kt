@@ -26,9 +26,11 @@ import com.sample.mdsyandexproject.stocklist.FavBtnListener
 import com.sample.mdsyandexproject.stocklist.StockItemAdapter
 import com.sample.mdsyandexproject.stocklist.SubscribePriceUpdateListener
 import com.sample.mdsyandexproject.stocklist.UnsubscribePriceUpdateListener
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
+@DelicateCoroutinesApi
 class SearchFragment : Fragment() {
 
     private lateinit var binding: FragmentSearchBinding
@@ -87,7 +89,7 @@ class SearchFragment : Fragment() {
             }
         }
 
-        binding.searchText.setOnEditorActionListener { v, actionId, event ->
+        binding.searchText.setOnEditorActionListener { v, actionId, _ ->
             when (actionId) {
                 EditorInfo.IME_ACTION_DONE -> {
                     // make request to api
@@ -110,19 +112,19 @@ class SearchFragment : Fragment() {
             findNavController().navigate(R.id.action_searchFragment_to_stockListFragment)
         }
 
-        searchViewModel.searchResultList.observe(viewLifecycleOwner, {
+        searchViewModel.searchResultList.observe(viewLifecycleOwner) {
             it?.let {
                 binding.rvPb.visibility = View.GONE
                 adapter.submitList(it)
             }
-        })
+        }
 
         searchViewModel.popularRequestList.observe(viewLifecycleOwner, object :
             Observer<List<String>> {
             override fun onChanged(data: List<String>?) {
                 data ?: return
                 val chipGroup = binding.searchSuggestView.popularRequestList
-                chipGroup.populateChipGroup(data);
+                chipGroup.populateChipGroup(data)
             }
         })
 
@@ -136,7 +138,7 @@ class SearchFragment : Fragment() {
                 }
             })
 
-        searchViewModel.isSearchActive.observe(viewLifecycleOwner, { isActive ->
+        searchViewModel.isSearchActive.observe(viewLifecycleOwner) { isActive ->
             when {
                 isActive -> {
                     binding.leftDrawable.setImageResource(R.drawable.ic_back_arrow)
@@ -148,24 +150,23 @@ class SearchFragment : Fragment() {
                     binding.searchResultList.visibility = View.VISIBLE
                 }
             }
-        })
+        }
 
-        searchViewModel.submitSearchException.observe(viewLifecycleOwner,
-            {
-                when (it.first) {
-                    true -> {
-                        Snackbar.make(
-                            binding.root,
-                            it.second,
-                            Snackbar.LENGTH_INDEFINITE
-                        ).setAction(getString(R.string.try_again)) {
-                            searchViewModel.onTriedAgainBtnClick()
-                            searchViewModel.submitSearch(binding.searchText.text.toString())
-                        }.show()
-                    }
+        searchViewModel.submitSearchException.observe(viewLifecycleOwner) {
+            when (it.first) {
+                true -> {
+                    Snackbar.make(
+                        binding.root,
+                        it.second,
+                        Snackbar.LENGTH_INDEFINITE
+                    ).setAction(getString(R.string.try_again)) {
+                        searchViewModel.onTriedAgainBtnClick()
+                        searchViewModel.submitSearch(binding.searchText.text.toString())
+                    }.show()
                 }
+                false -> { /* todo nothing */ }
             }
-        )
+        }
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
             findNavController().navigate(R.id.action_searchFragment_to_stockListFragment)
@@ -200,7 +201,7 @@ class SearchFragment : Fragment() {
             chip.text = regionName
             chip.tag = regionName
             chip.setOnClickListener {
-                binding.searchText.setText(chip.text);
+                binding.searchText.setText(chip.text)
                 binding.searchText.setSelection(chip.text.length)
                 showSoftKeyboard(binding.searchText)
             }
@@ -214,13 +215,15 @@ class SearchFragment : Fragment() {
 
     private fun showSoftKeyboard(view: View) {
         if (view.requestFocus()) {
-            val imm = requireNotNull(context).getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+            val imm =
+                requireNotNull(context).getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
             imm.showSoftInput(view, SHOW_IMPLICIT)
         }
     }
 
     private fun hideSoftKeyboard(view: View) {
-        val imm = requireNotNull(context).getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        val imm =
+            requireNotNull(context).getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(view.windowToken, HIDE_IMPLICIT_ONLY)
     }
 }

@@ -13,7 +13,11 @@ import com.sample.mdsyandexproject.App
 import com.sample.mdsyandexproject.R
 import com.sample.mdsyandexproject.databinding.FragmentRecomendationsBinding
 import com.sample.mdsyandexproject.stockitem.StockItemViewModel
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+@ExperimentalCoroutinesApi
+@DelicateCoroutinesApi
 class RecommendationsFragment : Fragment() {
 
     override fun onCreateView(
@@ -34,7 +38,7 @@ class RecommendationsFragment : Fragment() {
 
         binding.viewModel = stockItemViewModel
 
-        stockItemViewModel.recommendations.observe(viewLifecycleOwner, { data ->
+        stockItemViewModel.recommendations.observe(viewLifecycleOwner) { data ->
             data?.let {
                 binding.recommendationChart.xAxis.apply {
                     this.position = data.second.position
@@ -53,11 +57,11 @@ class RecommendationsFragment : Fragment() {
                 binding.recommendationChart.notifyDataSetChanged()
                 binding.recommendationChart.invalidate()
             }
-        })
+        }
 
         stockItemViewModel.updateRecommendations()
         stockItemViewModel.getRecommendationCount()
-        stockItemViewModel.recommendationDataLoading.observe(viewLifecycleOwner, { isLoading ->
+        stockItemViewModel.recommendationDataLoading.observe(viewLifecycleOwner) { isLoading ->
             when (isLoading) {
                 true -> {
                     binding.recommendationChart.visibility = View.GONE
@@ -68,9 +72,9 @@ class RecommendationsFragment : Fragment() {
                     binding.recommendationChart.visibility = View.VISIBLE
                 }
             }
-        })
+        }
 
-        stockItemViewModel.recommendationOffset.observe(viewLifecycleOwner, { offset ->
+        stockItemViewModel.recommendationOffset.observe(viewLifecycleOwner) { offset ->
             if (offset == 0) {
                 binding.next.isEnabled = false
                 binding.next.setImageResource(R.drawable.ic_next_disabled)
@@ -87,26 +91,24 @@ class RecommendationsFragment : Fragment() {
                     binding.previous.isEnabled = true
                     binding.previous.setImageResource(R.drawable.ic_previous)
                 }
-
             }
-        })
+        }
 
-        stockItemViewModel.loadRecommendationsException.observe(viewLifecycleOwner,
-            {
-                when (it.first) {
-                    true -> {
-                        Snackbar.make(
-                            binding.root,
-                            it.second,
-                            Snackbar.LENGTH_INDEFINITE
-                        ).setAction(getString(R.string.try_again)) {
-                            stockItemViewModel.onTriedAgainGetRecommendationBtnClick()
-                            stockItemViewModel.updateRecommendations()
-                        }.show()
-                    }
+        stockItemViewModel.loadRecommendationsException.observe(viewLifecycleOwner) {
+            when (it.first) {
+                true -> {
+                    Snackbar.make(
+                        binding.root,
+                        it.second,
+                        Snackbar.LENGTH_INDEFINITE
+                    ).setAction(getString(R.string.try_again)) {
+                        stockItemViewModel.onTriedAgainGetRecommendationBtnClick()
+                        stockItemViewModel.updateRecommendations()
+                    }.show()
                 }
+                false -> { /* to do nothing */ }
             }
-        )
+        }
 
         return binding.root
     }
