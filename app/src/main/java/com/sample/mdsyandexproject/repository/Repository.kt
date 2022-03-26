@@ -6,6 +6,7 @@ import androidx.lifecycle.Transformations
 import com.sample.mdsyandexproject.App
 import com.sample.mdsyandexproject.R
 import com.sample.mdsyandexproject.database.*
+import com.sample.mdsyandexproject.di.AppScope
 import com.sample.mdsyandexproject.domain.*
 import com.sample.mdsyandexproject.network.*
 import com.sample.mdsyandexproject.utils.*
@@ -16,13 +17,19 @@ import kotlinx.coroutines.channels.consumeEach
 import retrofit2.HttpException
 import java.net.SocketTimeoutException
 import java.util.concurrent.ConcurrentHashMap
+import javax.inject.Inject
 
 @ExperimentalCoroutinesApi
 @DelicateCoroutinesApi
-object Repository {
+@AppScope
+class Repository @Inject constructor(
+    var finnHubApi: FinnHubService,
+    var moshi: Moshi
+) {
 
-    private val database = getDatabase().dao
-    private val finnHubApi = FinnHubApi.finnHubService
+    private val adapter = moshi.adapter(UpdatePrices::class.java)
+
+    private val database = getDatabase(this).dao
 
     private lateinit var webSocketProvider: WebSocketProvider
 
@@ -34,12 +41,6 @@ object Repository {
     val loadNewsException = MutableLiveData<Pair<Boolean, String>>()
     val updateRecommendationsException = MutableLiveData<Pair<Boolean, String>>()
 
-    private var moshi: Moshi = Moshi.Builder()
-        .add(DataJsonAdapter())
-        .add(UpdatePricesJsonAdapter())
-        .add(com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory())
-        .build()
-    private val adapter = moshi.adapter(UpdatePrices::class.java)
 
     suspend fun openSocketChannel() {
         try {

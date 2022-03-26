@@ -7,18 +7,32 @@ import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
 import com.sample.mdsyandexproject.App
 import com.sample.mdsyandexproject.R
 import com.sample.mdsyandexproject.databinding.FragmentRecomendationsBinding
 import com.sample.mdsyandexproject.stockitem.StockItemViewModel
+import com.sample.mdsyandexproject.utils.ViewModelFactory
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import javax.inject.Inject
 
 @ExperimentalCoroutinesApi
 @DelicateCoroutinesApi
 class RecommendationsFragment : Fragment() {
+
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        (App.applicationContext() as App)
+            .appComponent
+            .activityComponent()
+            .recommendationComponent()
+            .inject(this)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -26,7 +40,8 @@ class RecommendationsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
 
-        val stockItemViewModel by activityViewModels<StockItemViewModel>()
+        val stockItemViewModel =
+            ViewModelProvider(this, viewModelFactory)[StockItemViewModel::class.java]
 
         val binding: FragmentRecomendationsBinding =
             DataBindingUtil.inflate(
@@ -106,7 +121,8 @@ class RecommendationsFragment : Fragment() {
                         stockItemViewModel.updateRecommendations()
                     }.show()
                 }
-                false -> { /* to do nothing */ }
+                false -> { /* to do nothing */
+                }
             }
         }
 

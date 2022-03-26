@@ -8,6 +8,7 @@ import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.data.CandleEntry
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
+import com.sample.mdsyandexproject.di.AppScope
 import com.sample.mdsyandexproject.domain.NewsItem
 import com.sample.mdsyandexproject.domain.StockItem
 import com.sample.mdsyandexproject.repository.Repository
@@ -17,12 +18,14 @@ import com.sample.mdsyandexproject.utils.MMM_YY
 import com.sample.mdsyandexproject.utils.convertLongToDate
 import kotlinx.coroutines.*
 import org.joda.time.DateTime
+import javax.inject.Inject
 
 @DelicateCoroutinesApi
 @ExperimentalCoroutinesApi
-class StockItemViewModel : ViewModel() {
-
-    private val repository = Repository
+@AppScope
+class StockItemViewModel @Inject constructor(
+    var repository: Repository
+) : ViewModel() {
 
     lateinit var stockItem: StockItem
 

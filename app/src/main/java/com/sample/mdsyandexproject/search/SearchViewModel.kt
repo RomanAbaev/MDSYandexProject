@@ -8,6 +8,7 @@ import com.sample.mdsyandexproject.domain.StockItem
 import com.sample.mdsyandexproject.repository.Repository
 import kotlinx.coroutines.*
 import java.util.concurrent.ConcurrentHashMap
+import javax.inject.Inject
 import kotlin.collections.List
 import kotlin.collections.MutableList
 import kotlin.collections.listOf
@@ -15,9 +16,9 @@ import kotlin.collections.set
 
 @DelicateCoroutinesApi
 @ExperimentalCoroutinesApi
-class SearchViewModel : ViewModel() {
-
-    private val repository = Repository
+class SearchViewModel @Inject constructor(
+    var repository: Repository
+) : ViewModel() {
 
     private val _searchResultList = MutableLiveData<MutableList<StockItem>>()
     val searchResultList: LiveData<MutableList<StockItem>>

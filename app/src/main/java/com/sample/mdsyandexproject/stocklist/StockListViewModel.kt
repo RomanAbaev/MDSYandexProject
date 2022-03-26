@@ -4,12 +4,13 @@ import androidx.lifecycle.*
 import com.sample.mdsyandexproject.domain.StockItem
 import com.sample.mdsyandexproject.repository.Repository
 import kotlinx.coroutines.*
+import javax.inject.Inject
 
 @DelicateCoroutinesApi
 @ExperimentalCoroutinesApi
-class StockListViewModel : ViewModel() {
-
-    private val repository = Repository
+class StockListViewModel @Inject constructor(
+    var repository: Repository
+) : ViewModel() {
 
     val isDataPrepopulating = repository.isDataPrepopulating
     val stockItemLoadingProgress = repository.stockItemLoadingProgress
@@ -84,5 +85,4 @@ class StockListViewModel : ViewModel() {
         const val STOCKS = "stocks"
         const val FAVOURITES = "favourites"
     }
-
 }

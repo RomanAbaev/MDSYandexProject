@@ -8,21 +8,36 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
+import com.sample.mdsyandexproject.App
 import com.sample.mdsyandexproject.R
 import com.sample.mdsyandexproject.databinding.FragmentNewsBinding
 import com.sample.mdsyandexproject.stockitem.StockItemViewModel
 import com.sample.mdsyandexproject.stocklist.EndlessRecyclerViewScrollListener
+import com.sample.mdsyandexproject.utils.ViewModelFactory
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @ExperimentalCoroutinesApi
 @DelicateCoroutinesApi
 class NewsFragment : Fragment() {
+
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        (App.applicationContext() as App)
+            .appComponent
+            .activityComponent()
+            .newsComponent()
+            .inject(this)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -30,7 +45,8 @@ class NewsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
 
-        val stockItemViewModel by activityViewModels<StockItemViewModel>()
+        val stockItemViewModel =
+            ViewModelProvider(this, viewModelFactory)[StockItemViewModel::class.java]
 
         val binding: FragmentNewsBinding =
             DataBindingUtil.inflate(
@@ -105,7 +121,8 @@ class NewsFragment : Fragment() {
                         stockItemViewModel.loadNews()
                     }.show()
                 }
-                false -> { /* to do nothing */ }
+                false -> { /* to do nothing */
+                }
             }
         }
 

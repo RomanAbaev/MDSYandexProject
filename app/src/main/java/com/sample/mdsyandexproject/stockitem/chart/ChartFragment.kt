@@ -9,16 +9,19 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
 import com.github.mikephil.charting.data.CandleData
 import com.github.mikephil.charting.data.CandleDataSet
 import com.google.android.material.snackbar.Snackbar
+import com.sample.mdsyandexproject.App
 import com.sample.mdsyandexproject.R
 import com.sample.mdsyandexproject.databinding.FragmentChartBinding
-import com.sample.mdsyandexproject.stockitem.chart.CandleChartDataPeriods
 import com.sample.mdsyandexproject.stockitem.StockItemViewModel
+import com.sample.mdsyandexproject.stockitem.chart.CandleChartDataPeriods
+import com.sample.mdsyandexproject.utils.ViewModelFactory
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import javax.inject.Inject
 
 @ExperimentalCoroutinesApi
 @DelicateCoroutinesApi
@@ -26,13 +29,26 @@ class ChartFragment : Fragment() {
 
     var checkedPeriod: Int = -1
 
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        (App.applicationContext() as App)
+            .appComponent
+            .activityComponent()
+            .chartComponent()
+            .inject(this)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
 
-        val stockItemViewModel by activityViewModels<StockItemViewModel>()
+        val stockItemViewModel =
+            ViewModelProvider(this, viewModelFactory)[StockItemViewModel::class.java]
 
         val binding: FragmentChartBinding =
             DataBindingUtil.inflate(
@@ -109,7 +125,8 @@ class ChartFragment : Fragment() {
                         stockItemViewModel.onCandlePeriodClick(checkedPeriod)
                     }.show()
                 }
-                false -> { /* to do nothing */ }
+                false -> { /* to do nothing */
+                }
             }
         }
 

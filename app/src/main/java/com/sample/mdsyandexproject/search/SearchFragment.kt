@@ -15,25 +15,39 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.snackbar.Snackbar
+import com.sample.mdsyandexproject.App
 import com.sample.mdsyandexproject.R
 import com.sample.mdsyandexproject.databinding.FragmentSearchBinding
-import com.sample.mdsyandexproject.stocklist.FavBtnListener
-import com.sample.mdsyandexproject.stocklist.StockItemAdapter
-import com.sample.mdsyandexproject.stocklist.SubscribePriceUpdateListener
-import com.sample.mdsyandexproject.stocklist.UnsubscribePriceUpdateListener
+import com.sample.mdsyandexproject.di.ApplicationComponent
+import com.sample.mdsyandexproject.di.DaggerApplicationComponent
+import com.sample.mdsyandexproject.stocklist.*
+import com.sample.mdsyandexproject.utils.ViewModelFactory
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import javax.inject.Inject
 
 @ExperimentalCoroutinesApi
 @DelicateCoroutinesApi
 class SearchFragment : Fragment() {
 
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+
     private lateinit var binding: FragmentSearchBinding
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+       (App.applicationContext() as App)
+            .appComponent.activityComponent()
+            .searchComponent()
+            .inject(this)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -49,7 +63,8 @@ class SearchFragment : Fragment() {
         )
 
         // init viewmodel
-        val searchViewModel by viewModels<SearchViewModel>()
+        val searchViewModel =
+            ViewModelProvider(this, viewModelFactory)[SearchViewModel::class.java]
         binding.searchViewModel = searchViewModel
 
         // init recyclerview data

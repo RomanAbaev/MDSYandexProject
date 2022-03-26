@@ -120,7 +120,10 @@ private val scope = CoroutineScope(Dispatchers.IO)
 
 @DelicateCoroutinesApi
 @ExperimentalCoroutinesApi
-fun getDatabase(): StockDatabase {
+fun getDatabase(
+    // TODO get rid of Repository (because it cyclic dependency)
+    repository: Repository
+): StockDatabase {
     synchronized(StockDatabase::class.java) {
         if (!::INSTANCE.isInitialized) {
             INSTANCE = Room.databaseBuilder(
@@ -133,10 +136,10 @@ fun getDatabase(): StockDatabase {
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         scope.launch {
                             try {
-                                Repository.prepopulateData()
+                                repository.prepopulateData()
                             } catch (ex: Exception) {
                                 ex.printStackTrace()
-                                Repository.loadNextChunksException.postValue(
+                                repository.loadNextChunksException.postValue(
                                     Pair(
                                         true,
                                         ex.message.toString()
@@ -152,10 +155,10 @@ fun getDatabase(): StockDatabase {
                             val count = INSTANCE.dao.getIndicesCount()
                             if (count == 0) {
                                 try {
-                                    Repository.prepopulateData()
+                                    repository.prepopulateData()
                                 } catch (ex: Exception) {
                                     ex.printStackTrace()
-                                    Repository.loadNextChunksException.postValue(
+                                    repository.loadNextChunksException.postValue(
                                         Pair(
                                             true,
                                             ex.message.toString()

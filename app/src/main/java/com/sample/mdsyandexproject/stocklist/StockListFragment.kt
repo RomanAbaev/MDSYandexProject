@@ -9,24 +9,40 @@ import android.view.View.OnTouchListener
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
+import com.sample.mdsyandexproject.App
+import com.sample.mdsyandexproject.App.Companion.applicationContext
 import com.sample.mdsyandexproject.R
 import com.sample.mdsyandexproject.databinding.FragmentStockListBinding
 import com.sample.mdsyandexproject.domain.StockItem
 import com.sample.mdsyandexproject.repository.limit
+import com.sample.mdsyandexproject.utils.ViewModelFactory
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @ExperimentalCoroutinesApi
 @DelicateCoroutinesApi
 class StockListFragment : Fragment() {
 
     lateinit var binding: FragmentStockListBinding
+
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        (applicationContext() as App)
+            .appComponent
+            .activityComponent()
+            .stockListComponent()
+            .inject(this)
+    }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
@@ -42,7 +58,8 @@ class StockListFragment : Fragment() {
         )
 
         // init viewmodel
-        val stockListViewModel by viewModels<StockListViewModel>()
+        val stockListViewModel =
+            ViewModelProvider(this, viewModelFactory)[StockListViewModel::class.java]
         binding.stockListViewModel = stockListViewModel
 
         // init recyclerview data

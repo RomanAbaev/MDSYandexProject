@@ -34,7 +34,9 @@ class WebSocketProvider {
     fun startSocket(webSocketListener: FinnHubWebSocketListener) {
         this.webSocketListener = webSocketListener
         webSocket = socketOkHttpClient.newWebSocket(
-            Request.Builder().url("wss://ws.finnhub.io?token=$FINNHUB_API_KEY").build(),
+            Request.Builder()
+                .url("wss://ws.finnhub.io?${AuthInterceptors.TOKEN}=${AuthInterceptors.FINNHUB_API_KEY}")
+                .build(),
             webSocketListener
         )
         socketOkHttpClient.dispatcher.executorService.shutdown()

@@ -8,6 +8,7 @@ import com.sample.mdsyandexproject.utils.parseStringDate
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.Json
 import com.squareup.moshi.ToJson
+import javax.inject.Inject
 
 data class CompanyProfile(
     val ticker: String,
@@ -106,7 +107,7 @@ data class DataJson(
     val c: List<String>?
 )
 
-class DataJsonAdapter() {
+class DataJsonAdapter @Inject constructor() {
     @ToJson
     fun toJson(data: Data): String {
         return ""
@@ -129,7 +130,7 @@ data class UpdatePricesJson(
     val data: List<Data>?
 )
 
-class UpdatePricesJsonAdapter() {
+class UpdatePricesJsonAdapter @Inject constructor() {
 
     @ToJson
     fun toJson(updatePrices: UpdatePrices): String {

@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.activity.addCallback
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.tabs.TabLayoutMediator
 import com.sample.mdsyandexproject.App
@@ -16,15 +16,29 @@ import com.sample.mdsyandexproject.databinding.FragmentStockItemBinding
 import com.sample.mdsyandexproject.stockitem.StockItemFragmentArgs.fromBundle
 import com.sample.mdsyandexproject.stockitem.TabNames.*
 import com.sample.mdsyandexproject.stocklist.FavBtnListener
+import com.sample.mdsyandexproject.utils.ViewModelFactory
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import javax.inject.Inject
 
 
 @ExperimentalCoroutinesApi
 @DelicateCoroutinesApi
 class StockItemFragment : Fragment() {
 
-    private val stockItemViewModel by activityViewModels<StockItemViewModel>()
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+
+    lateinit var stockItemViewModel: StockItemViewModel
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        (App.applicationContext() as App)
+            .appComponent
+            .activityComponent()
+            .stockItemComponent()
+            .inject(this)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,6 +53,9 @@ class StockItemFragment : Fragment() {
                 container,
                 false
             )
+
+        stockItemViewModel =
+            ViewModelProvider(this, viewModelFactory)[StockItemViewModel::class.java]
 
         arguments?.let {
             fromBundle(it).stockItem
@@ -57,7 +74,8 @@ class StockItemFragment : Fragment() {
                 CHART.ordinal -> App.applicationContext().getString(R.string.chart_tab_name)
                 NEWS.ordinal -> App.applicationContext().getString(R.string.news_tab_name)
                 SUMMARY.ordinal -> App.applicationContext().getString(R.string.summary_tab_name)
-                RECOMMENDATIONS.ordinal -> App.applicationContext().getString(R.string.recommendations_tab_name)
+                RECOMMENDATIONS.ordinal -> App.applicationContext()
+                    .getString(R.string.recommendations_tab_name)
                 else -> throw IllegalArgumentException("Illegal tab number")
             }
         }.attach()
