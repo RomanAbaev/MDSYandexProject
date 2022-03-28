@@ -81,6 +81,24 @@ class StockListViewModel @Inject constructor(
         super.onCleared()
     }
 
+    fun prepopulateIfNeeded() {
+        viewModelScope.launch {
+            if (repository.isPrepopulateNeeded()) {
+                try {
+                    repository.prepopulateData()
+                } catch (ex: Exception) {
+                    ex.printStackTrace()
+                    repository.loadNextChunksException.postValue(
+                        Pair(
+                            true,
+                            ex.message.toString()
+                        )
+                    )
+                }
+            }
+        }
+    }
+
     companion object {
         const val STOCKS = "stocks"
         const val FAVOURITES = "favourites"

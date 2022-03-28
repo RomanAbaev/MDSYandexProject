@@ -1,5 +1,6 @@
 package com.sample.mdsyandexproject.network
 
+import com.sample.mdsyandexproject.di.AppScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
@@ -7,15 +8,15 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.WebSocket
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
 @DelicateCoroutinesApi
 @ExperimentalCoroutinesApi
-class WebSocketProvider {
+@AppScope
+class WebSocketProvider @Inject constructor() {
     var webSocket: WebSocket? = null
 
     private val socketOkHttpClient = OkHttpClient.Builder()
-//        .readTimeout(1, TimeUnit.MINUTES)
-//        .callTimeout(5, TimeUnit.SECONDS)
         .connectTimeout(2, TimeUnit.MINUTES)
         .hostnameVerifier { _, _ -> true }
         .build()

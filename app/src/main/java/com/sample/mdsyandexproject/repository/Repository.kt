@@ -24,14 +24,12 @@ import javax.inject.Inject
 @AppScope
 class Repository @Inject constructor(
     var finnHubApi: FinnHubService,
-    var moshi: Moshi
+    var moshi: Moshi,
+    var database: StockDatabase,
+    var webSocketProvider: WebSocketProvider
 ) {
 
     private val adapter = moshi.adapter(UpdatePrices::class.java)
-
-    private val database = getDatabase(this).dao
-
-    private lateinit var webSocketProvider: WebSocketProvider
 
     private val updateRequestQ = ConcurrentHashMap<String, Int>()
 
@@ -48,7 +46,7 @@ class Repository @Inject constructor(
                 if (response.exception == null) {
                     response.text?.let { text ->
                         adapter.fromJson(text)?.data?.let { listData ->
-                            this.database.updatePrices(listData.asPrices())
+                            this.database.dao.updatePrices(listData.asPrices())
                         }
                     }
                 } else onSocketError(response.exception)
@@ -79,8 +77,8 @@ class Repository @Inject constructor(
     }
 
     fun getStockList(showFavouriteList: Boolean): LiveData<List<StockItem>> {
-        return if (showFavouriteList) Transformations.map(database.getFavouriteList()) { it.asDomainModel() }
-        else Transformations.map(database.getAll()) { it.asDomainModel() }
+        return if (showFavouriteList) Transformations.map(database.dao.getFavouriteList()) { it.asDomainModel() }
+        else Transformations.map(database.dao.getAll()) { it.asDomainModel() }
     }
 
 
@@ -114,13 +112,13 @@ class Repository @Inject constructor(
         }
     }
 
-    private suspend fun isPrepopulateNeeded(): Boolean {
-        return database.getIndicesCount() == 0 || database.getTotalItemCount() == 0
+    suspend fun isPrepopulateNeeded(): Boolean {
+        return database.dao.getIndicesCount() == 0 || database.dao.getTotalItemCount() == 0
     }
 
     private suspend fun loadStockItems() {
         stockItemLoadingProgress.postValue(stockItemLoadingProgress.value?.plus(1))
-        val spIndices = database.getNextUnloadedIndices(limit)
+        val spIndices = database.dao.getNextUnloadedIndices(limit)
         if (spIndices.isNotEmpty()) loadCompanyInfoAndQuote(spIndices)
     }
 
@@ -134,7 +132,11 @@ class Repository @Inject constructor(
 
     private suspend fun loadCompanyInfoAndQuote(spIndices: List<SPIndices>) {
         withContext(Dispatchers.IO) {
-            database.loadNextChunks(
+            // TODO make it parallel and write by one in db
+            //  and if we get 429 (limit exceeded) show what we get, not what error
+            //  think about auth and firebase db as cache
+            //  (so we don't need to make so many request for different users)
+            database.dao.loadNextChunks(
                 stockList = spIndices.map {
                     delay(500)
                     val companyProfile = finnHubApi.getCompanyProfile(it.indices).await()
@@ -178,8 +180,8 @@ class Repository @Inject constructor(
             }
 
             when (companyProfile) {
-                null -> database.updateQuote(createQuoteDb(stockItem, quote))
-                else -> database.updateQuoteAndCompanyProfile(
+                null -> database.dao.updateQuote(createQuoteDb(stockItem, quote))
+                else -> database.dao.updateQuoteAndCompanyProfile(
                     createQuoteAndCompanyProfileDb(
                         stockItem,
                         quote,
@@ -192,24 +194,24 @@ class Repository @Inject constructor(
     }
 
     suspend fun isExistInDb(stockItem: StockItem) {
-        val _stockItem = database.getStockItem(stockItem.ticker)
+        val _stockItem = database.dao.getStockItem(stockItem.ticker)
         if (_stockItem != null) {
             updateFavouriteStock(stockItem)
         } else {
             stockItem.isFavourite = true
-            database.updateSPIndices(listOf(SPIndices(stockItem.ticker, true)))
-            database.insertStockItem(stockItem.asDatabaseModel())
+            database.dao.updateSPIndices(listOf(SPIndices(stockItem.ticker, true)))
+            database.dao.insertStockItem(stockItem.asDatabaseModel())
         }
     }
 
     suspend fun updateFavouriteStock(stockItem: StockItem) {
-        database.updateFavouriteStock(stockItem.asFavouriteDatabaseModel())
+        database.dao.updateFavouriteStock(stockItem.asFavouriteDatabaseModel())
     }
 
     private suspend fun loadSPIndicesToDB() {
         try {
             val spIndices = finnHubApi.getTop500Indices().await().asDatabaseModel()
-            database.insertAllSPIndices(spIndices)
+            database.dao.insertAllSPIndices(spIndices)
         } catch (socketEx: SocketTimeoutException) {
             socketEx.printStackTrace()
         } catch (ex: Exception) {
@@ -220,7 +222,7 @@ class Repository @Inject constructor(
     suspend fun submitSearch(query: String): MutableList<StockItem> {
         // get all from database base on this query
         val stockItemListFromDb: MutableList<StockItem> =
-            database.search("%$query%").asDomainModel().toMutableList()
+            database.dao.search("%$query%").asDomainModel().toMutableList()
         var stockItemListNetwork: SearchResultResponse? = null
         try {
             stockItemListNetwork = finnHubApi.submitSearch(query).await()
@@ -304,7 +306,7 @@ class Repository @Inject constructor(
                 if (newsPage == 0) {
                     val news = loadNewsFromNetwork(ticker, fromAndToDate)
                     val newsAndRefs = news.asDatabaseModel()
-                    database.insertNews(newsAndRefs.first, newsAndRefs.second)
+                    database.dao.insertNews(newsAndRefs.first, newsAndRefs.second)
                     return news.asDomainModel()
                 } else {
                     val news =
@@ -314,7 +316,7 @@ class Repository @Inject constructor(
                     else {
                         val newsNetwork = loadNewsFromNetwork(ticker, fromAndToDate)
                         val newsAndRefs = newsNetwork.asDatabaseModel()
-                        database.insertNews(newsAndRefs.first, newsAndRefs.second)
+                        database.dao.insertNews(newsAndRefs.first, newsAndRefs.second)
                         newsNetwork.asDomainModel()
                     }
                 }
@@ -340,7 +342,7 @@ class Repository @Inject constructor(
     }
 
     private suspend fun loadNewsFromDb(ticker: String, from: Long, to: Long) =
-        database.getNews(ticker, from, to)
+        database.dao.getNews(ticker, from, to)
 
     private suspend fun loadNewsFromNetwork(ticker: String, fromAndToDate: String) =
         finnHubApi.loadNews(
@@ -355,17 +357,17 @@ class Repository @Inject constructor(
         offset: Int,
         limit: Int
     ): LiveData<List<RecommendationItem>> {
-        return Transformations.map(database.getRecommendations(ticker, offset, limit)) {
+        return Transformations.map(database.dao.getRecommendations(ticker, offset, limit)) {
             it.asDomainModel()
         }
     }
 
     suspend fun getRecommendationCount(ticker: String): Int =
-        database.getRecommendationsCount(ticker)
+        database.dao.getRecommendationsCount(ticker)
 
     suspend fun updateRecommendations(ticker: String) {
         return try {
-            database.insertRecommendations(
+            database.dao.insertRecommendations(
                 finnHubApi.loadRecommendation(ticker).await().asDatabaseModel()
             )
         } catch (ex: HttpException) {

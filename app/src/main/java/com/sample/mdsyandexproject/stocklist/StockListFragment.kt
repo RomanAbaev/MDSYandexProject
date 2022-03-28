@@ -1,6 +1,8 @@
 package com.sample.mdsyandexproject.stocklist
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -61,6 +63,8 @@ class StockListFragment : Fragment() {
         val stockListViewModel =
             ViewModelProvider(this, viewModelFactory)[StockListViewModel::class.java]
         binding.stockListViewModel = stockListViewModel
+
+        stockListViewModel.prepopulateIfNeeded()
 
         // init recyclerview data
         val manager = LinearLayoutManager(activity)

@@ -4,7 +4,7 @@ import dagger.Component
 import dagger.Module
 
 @AppScope
-@Component(modules = [NetworkModule::class])
+@Component(modules = [NetworkModule::class, RoomDbModule::class])
 interface ApplicationComponent {
 
     fun activityComponent(): MainActivityComponent

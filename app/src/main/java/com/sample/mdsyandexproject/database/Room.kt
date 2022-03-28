@@ -116,14 +116,9 @@ abstract class StockDatabase : RoomDatabase() {
 
 private lateinit var INSTANCE: StockDatabase
 
-private val scope = CoroutineScope(Dispatchers.IO)
-
 @DelicateCoroutinesApi
 @ExperimentalCoroutinesApi
-fun getDatabase(
-    // TODO get rid of Repository (because it cyclic dependency)
-    repository: Repository
-): StockDatabase {
+fun getStockDatabase(): StockDatabase {
     synchronized(StockDatabase::class.java) {
         if (!::INSTANCE.isInitialized) {
             INSTANCE = Room.databaseBuilder(
@@ -131,44 +126,6 @@ fun getDatabase(
                 StockDatabase::class.java,
                 "stocks"
             )
-                .addCallback(object : RoomDatabase.Callback() {
-                    // prepopulate database
-                    override fun onCreate(db: SupportSQLiteDatabase) {
-                        scope.launch {
-                            try {
-                                repository.prepopulateData()
-                            } catch (ex: Exception) {
-                                ex.printStackTrace()
-                                repository.loadNextChunksException.postValue(
-                                    Pair(
-                                        true,
-                                        ex.message.toString()
-                                    )
-                                )
-                            }
-                        }
-                    }
-
-                    override fun onOpen(db: SupportSQLiteDatabase) {
-                        scope.launch {
-                            // check if SPIndices wasn't loaded in onCreate methods (and reload it if needed)
-                            val count = INSTANCE.dao.getIndicesCount()
-                            if (count == 0) {
-                                try {
-                                    repository.prepopulateData()
-                                } catch (ex: Exception) {
-                                    ex.printStackTrace()
-                                    repository.loadNextChunksException.postValue(
-                                        Pair(
-                                            true,
-                                            ex.message.toString()
-                                        )
-                                    )
-                                }
-                            }
-                        }
-                    }
-                })
                 .addMigrations(Migration_1_2)
                 .addMigrations(Migration_2_3)
                 .addMigrations(Migration_3_4)

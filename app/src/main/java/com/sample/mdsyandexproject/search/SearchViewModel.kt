@@ -52,6 +52,7 @@ class SearchViewModel @Inject constructor(
         }
     }
 
+    // TODO get rid of thess mocks
     private fun getMockPopularRequest(): List<String> =
         listOf(
             "Apple",
